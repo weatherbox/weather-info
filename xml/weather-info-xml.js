@@ -1,7 +1,8 @@
 var request = require('request');
 var xml2js = require('xml2js');
 
-request('http://www.data.jma.go.jp/developer/xml/data/bd6e165f-d3ac-3b1f-a919-d2f9491e9f19.xml', (err, res, body) => {
+var url = process.argv[2];
+request(url, (err, res, body) => {
   parse(body);
 });
 
@@ -19,8 +20,17 @@ function parse(data){
     var headline = xml.Report.Head[0].Headline[0].Text[0];
     var comment = xml.Report.Body[0].Comment[0].Text[0]._;
 
+    // analyze
+    var titles = title.split("に関する");
+    var weather_type = titles[0];
+    var area = titles[1].replace("気象情報", "");
+
     console.log(type, office, title, datetime, headline, comment);
+    console.log(weather_type, area);
   });
 }
+
+
+var prefs = {};
 
 
