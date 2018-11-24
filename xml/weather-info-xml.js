@@ -1,39 +1,85 @@
-var request = require('request');
-var xml2js = require('xml2js');
+const path = require('path');
+const os = require('os');
+const fs = require('fs');
 
-var url = process.argv[2];
-request(url, (err, res, body) => {
-  parse(body);
-});
+const request = require('request');
+const xml2js = require('xml2js');
 
-function parse(data){
+const {Storage} = require('@google-cloud/storage');
+const bucketName = 'weather-info';
+
+
+if (process.argv.length > 2){
+  var url = process.argv[2];
+  request(url, (err, res, body) => {
+    parse(body);
+  });
+
+}else{
+  initAllJson();
+}
+
+
+function parse(data) {
   var parser = new xml2js.Parser();
   
   parser.parseString(data, (err, xml) => {
     console.log(JSON.stringify(xml, null, 2));
     if (xml.Report.Control[0].Status[0] != '通常') return;
 
-    var type = xml.Report.Control[0].Title[0];
-    var office = xml.Report.Control[0].PublishingOffice[0];
-    var title = xml.Report.Head[0].Title[0];
-    var datetime = xml.Report.Head[0].ReportDateTime[0];
-    var headline = xml.Report.Head[0].Headline[0].Text[0];
-    var comment = xml.Report.Body[0].Comment[0].Text[0]._;
+    var data = {};
+    data.type = xml.Report.Control[0].Title[0];
+    data.office = xml.Report.Control[0].PublishingOffice[0];
+    data.title = xml.Report.Head[0].Title[0];
+    data.datetime = xml.Report.Head[0].ReportDateTime[0];
+    data.headline = xml.Report.Head[0].Headline[0].Text[0];
+    data.comment = xml.Report.Body[0].Comment[0].Text[0]._;
 
     // analyze
-    var titles = title.split("に関する");
-    var weather_type = titles[0];
-    var area = titles[1].replace("気象情報", "");
-    var code = (area == "全般") ? "010000" : codes[area];
+    var titles = data.title.split("に関する");
+    data.weather_type = titles[0];
+    data.area = titles[1].replace("気象情報", "");
+    data.code = (data.area == "全般") ? "010000" : 
+      (data.type == "地方気象情報") ? regions[data.area] : prefs[data.area];
 
-    console.log(type, office, title, datetime, headline, comment);
-    console.log(weather_type, area, code);
+    console.log(data);
+    makeAllJson(data);
   });
 }
 
+function updateAllJson(data) {
 
-var codes = {
-  // region
+}
+
+
+async function initAllJson() {
+  var data = {
+    last_update: '',
+    general: [],
+    regions: {},
+    prefs: {}
+  };
+
+  const filename = 'weather-info-all.json';
+  const file = path.join(os.tmpdir(), filename);
+  await fs.writeFileSync(file, JSON.stringify(data));
+  await upload(file, filename);
+}
+
+async function upload(file, filename) {
+  const storage = new Storage();
+  const bucket = storage.bucket(bucketName);
+  await bucket.upload(file, {
+    dstination: filename,
+    gzip: true,
+    matadata: {
+      cacheControl: 'no-cache'
+    }
+  });
+  await bucket.file(filename).makePublic();
+}
+
+var regions = {
   "北海道地方": "010100",
   "東北地方": "010200",
   "関東甲信地方": "010300",
@@ -45,8 +91,9 @@ var codes = {
   "九州北部地方（山口県を含む）": "010900",
   "九州南部・奄美地方": "011000",
   "沖縄地方": "011100",
+};
 
-   // pref
+var prefs = {
   "宗谷地方": "011000",
   "上川・留萌地方": "012000",
   "網走・北見・紋別地方": "013000",
