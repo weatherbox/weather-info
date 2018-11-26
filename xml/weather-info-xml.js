@@ -12,7 +12,7 @@ const bucketName = 'weather-info';
 if (process.argv.length > 2){
   var url = process.argv[2];
   request(url, (err, res, body) => {
-    parse(body);
+    parse(body, url);
   });
 
 }else{
@@ -20,20 +20,26 @@ if (process.argv.length > 2){
 }
 
 
-function parse(data) {
+async function parse(data, url) {
   var parser = new xml2js.Parser();
   
   parser.parseString(data, (err, xml) => {
-    console.log(JSON.stringify(xml, null, 2));
+    //console.log(JSON.stringify(xml, null, 2));
     if (xml.Report.Control[0].Status[0] != '通常') return;
 
     var data = {};
-    data.type = xml.Report.Control[0].Title[0];
-    data.office = xml.Report.Control[0].PublishingOffice[0];
-    data.title = xml.Report.Head[0].Title[0];
+    data.type     = xml.Report.Control[0].Title[0];
+    data.office   = xml.Report.Control[0].PublishingOffice[0];
+    data.title    = xml.Report.Head[0].Title[0];
     data.datetime = xml.Report.Head[0].ReportDateTime[0];
+    data.eventID  = xml.Report.Head[0].EventID[0];
+    data.serial   = xml.Report.Head[0].Serial[0];
     data.headline = xml.Report.Head[0].Headline[0].Text[0];
-    data.comment = xml.Report.Body[0].Comment[0].Text[0]._;
+    data.comment  = xml.Report.Body[0].Comment[0].Text[0]._;
+
+    // ID
+    data.ID = data.eventID + ('000' + data.serial).slice(-3);
+    data.xmlID = path.basename(url).split('.')[0];
 
     // analyze
     var titles = data.title.split("に関する");
