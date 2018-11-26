@@ -99,12 +99,12 @@ async function initAllJson() {
 
 async function download(filename) {
   const file = path.join(os.tmpdir(), filename);
-  console.log(file);
   const storage = new Storage();
   await storage.bucket(bucketName)
     .file(filename)
     .download({
-      dstination: file
+      dstination: file,
+      validation: false
     });
   return file;
 }
