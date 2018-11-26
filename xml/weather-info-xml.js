@@ -4,9 +4,11 @@ const fs = require('fs');
 
 const request = require('request');
 const xml2js = require('xml2js');
+const jsonfile = require('jsonfile');
 
 const {Storage} = require('@google-cloud/storage');
 const bucketName = 'weather-info';
+const AllJson = 'weather-info-all.json';
 
 
 if (process.argv.length > 2){
@@ -49,12 +51,35 @@ async function parse(data, url) {
       (data.type == "地方気象情報") ? regions[data.area] : prefs[data.area];
 
     console.log(data);
-    makeAllJson(data);
+    updateAllJson(data);
   });
 }
 
-function updateAllJson(data) {
+async function updateAllJson(data) {
+  const file = await download(AllJson);
+  let json = jsonfile.readFileSync(file);
+  console.log(json);
+  const code = data.code;
+  const base = {
+    id: data.ID,
+    title: data.title,
+    time: data.datetime
+  };
 
+  if (data.type == "全般気象情報") {
+    json.general.unshift({ ...base, headline: data.headline, data });
+
+  } else if (data.type == "地方気象情報") {
+    json.regions[code] = base;
+
+  } else if (data.type == "府県気象情報") {
+    json.prefs[code] = base;
+  }
+
+  json.last_update = data.datetime;
+  console.log(json);
+  await jsonfile.writeFileSync(file, json);
+  await uploadPublic(file, AllJson);
 }
 
 
@@ -66,13 +91,25 @@ async function initAllJson() {
     prefs: {}
   };
 
-  const filename = 'weather-info-all.json';
-  const file = path.join(os.tmpdir(), filename);
-  await fs.writeFileSync(file, JSON.stringify(data));
-  await upload(file, filename);
+  const file = path.join(os.tmpdir(), AllJson);
+  await jsonfile.writeFileSync(file, data);
+  await uploadPublic(file, AllJson);
 }
 
-async function upload(file, filename) {
+
+async function download(filename) {
+  const file = path.join(os.tmpdir(), filename);
+  console.log(file);
+  const storage = new Storage();
+  await storage.bucket(bucketName)
+    .file(filename)
+    .download({
+      dstination: file
+    });
+  return file;
+}
+
+async function uploadPublic(file, filename) {
   const storage = new Storage();
   const bucket = storage.bucket(bucketName);
   await bucket.upload(file, {
