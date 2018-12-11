@@ -3,6 +3,9 @@ const projectId = 'weatherbox-217409';
 const datastore = new Datastore({ projectId });
 const lastIdKey = datastore.key(['jma-xml-last-update', 'last-id']);
 
+const {PubSub} = require('@google-cloud/pubsub');
+const pubsub = new PubSub({ projectId });
+
 const request = require('request');
 const xml2js = require('xml2js');
 const atomFeed = 'http://www.data.jma.go.jp/developer/xml/feed/extra.xml';
@@ -17,9 +20,9 @@ function update() {
     .run()
     .then(() => transaction.get(lastIdKey))
     .then(res => {
-      console.log(res);
       const last = res[0];
       const lastId = last.lastId;
+      console.log('start', lastId);
 
       checkUpdated(lastId, function(updatedLastId) {
         console.log('updated: ' + updatedLastId);
@@ -58,9 +61,10 @@ function checkUpdated(lastId, done) {
 
 
 const topics = {
-  '全般気象情報': 'weather-info',
-  '地方気象情報': 'weather-info',
-  '府県気象情報': 'weather-info',
+  '全般気象情報': 'jma-xml-weather-info',
+  '地方気象情報': 'jma-xml-weather-info',
+  '府県気象情報': 'jma-xml-weather-info',
+  '気象警報・注意報（Ｈ２７）': 'jma-xml-warning'
 };
 
 function dispatch(id, title, xml) {
@@ -68,6 +72,18 @@ function dispatch(id, title, xml) {
   if (title in topics) {
     const topic = topics[title];
     console.log('->', topic);
+    publish(topic, { url: xml });
   }
+}
+
+
+function publish(topic, message) {
+  pubsub
+    .topic(topic)
+    .publisher()
+    .publish(Buffer.from(JSON.stringify(message)))
+    .then(messageId => {
+      console.log(`Message ${messageId} published.`);
+    });
 }
 
