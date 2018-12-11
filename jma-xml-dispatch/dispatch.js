@@ -25,6 +25,11 @@ function update() {
       console.log('start', lastId);
 
       checkUpdated(lastId, function(updatedLastId) {
+        if (lastId == updatedLastId){
+          console.log('not updated');
+          return;
+        }
+
         console.log('updated: ' + updatedLastId);
         last.lastId = updatedLastId;
         transaction.save({
