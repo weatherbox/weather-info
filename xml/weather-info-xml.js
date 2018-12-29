@@ -1,25 +1,37 @@
 const path = require('path');
-const os = require('os');
-const fs = require('fs');
 
 const request = require('request');
 const xml2js = require('xml2js');
-const jsonfile = require('jsonfile');
 
+const {PubSub} = require('@google-cloud/pubsub');
 const {Storage} = require('@google-cloud/storage');
 const bucketName = 'weather-info';
 const AllJson = 'weather-info-all.json';
 
-
+// from command line
 if (process.argv.length > 2){
   var url = process.argv[2];
-  request(url, (err, res, body) => {
-    parse(body, url);
-  });
-
-}else{
-  initAllJson();
+  
+  if (url == "init"){
+    initAllJson();
+  }else{
+    request(url, (err, res, body) => {
+        parse(body, url);
+    });
+  }
 }
+
+
+exports.handler = (event, context) => {
+  const pubsubMessage = event.data;
+  const message = JSON.parse(Buffer.from(pubsubMessage, 'base64').toString());
+  console.log(message);
+
+  request(message.url, (err, res, body) => {
+    parse(body, message.url);
+  });
+};
+
 
 
 async function parse(data, url) {
@@ -42,6 +54,7 @@ async function parse(data, url) {
     // ID
     data.ID = data.eventID + ('000' + data.serial).slice(-3);
     data.xmlID = path.basename(url).split('.')[0];
+    data.url = url;
 
     // analyze
     var titles = data.title.split("に関する");
@@ -56,30 +69,31 @@ async function parse(data, url) {
 }
 
 async function updateAllJson(data) {
-  const file = await download(AllJson);
-  let json = jsonfile.readFileSync(file);
-  console.log(json);
-  const code = data.code;
-  const base = {
-    id: data.ID,
-    title: data.title,
-    time: data.datetime
-  };
+  download(AllJson, async function(json) {
+    console.log(json);
+    const code = data.code;
+    const base = {
+      id: data.ID,
+      url: data.url,
+      title: data.title,
+      time: data.datetime,
+      serial: data.serial
+    };
 
-  if (data.type == "全般気象情報") {
-    json.general.unshift({ ...base, headline: data.headline, data });
+    if (data.type == "全般気象情報") {
+      json.general.unshift({ ...base, headline: data.headline, data });
 
-  } else if (data.type == "地方気象情報") {
-    json.regions[code] = base;
+    } else if (data.type == "地方気象情報") {
+      json.regions[code] = base;
 
-  } else if (data.type == "府県気象情報") {
-    json.prefs[code] = base;
-  }
+    } else if (data.type == "府県気象情報") {
+      json.prefs[code] = base;
+    }
 
-  json.last_update = data.datetime;
-  console.log(json);
-  await jsonfile.writeFileSync(file, json);
-  await uploadPublic(file, AllJson);
+    json.last_update = data.datetime;
+    console.log(json);
+    uploadPublic(AllJson, JSON.stringify(json));
+  });
 }
 
 
@@ -91,35 +105,34 @@ async function initAllJson() {
     prefs: {}
   };
 
-  const file = path.join(os.tmpdir(), AllJson);
-  await jsonfile.writeFileSync(file, data);
-  await uploadPublic(file, AllJson);
+  await uploadPublic(AllJson, JSON.stringify(data));
 }
 
 
-async function download(filename) {
-  const file = path.join(os.tmpdir(), filename);
+function download(filename, callback) {
   const storage = new Storage();
-  await storage.bucket(bucketName)
+  storage.bucket(bucketName)
     .file(filename)
-    .download({
-      dstination: file,
-      validation: false
+    .download({validation: false}, function (err, contents) {
+      if (err) console.error(err);
+      callback(JSON.parse(contents.toString('utf-8')));
     });
-  return file;
 }
 
-async function uploadPublic(file, filename) {
+function uploadPublic(filename, contents) {
   const storage = new Storage();
   const bucket = storage.bucket(bucketName);
-  await bucket.upload(file, {
-    dstination: filename,
+  const file = bucket.file(filename);
+  file.save(contents, {
+    contentType: 'application/json',
     gzip: true,
     matadata: {
       cacheControl: 'no-cache'
     }
+  }, function (err) { 
+    if (err) console.error(err);
+    file.makePublic();
   });
-  await bucket.file(filename).makePublic();
 }
 
 var regions = {
