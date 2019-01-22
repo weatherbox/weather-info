@@ -2,7 +2,10 @@ import React, { Component } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css'
 
+import WeatherInfoLayer from './WeatherInfoLayer';
+
 mapboxgl.accessToken = 'pk.eyJ1IjoidGF0dGlpIiwiYSI6ImNqZWZ4eWM3NTI2cGszM2xpYXEyZndpd3IifQ.ifzbR45HecVGxChbdR2hiw';
+
 
 export default class Map extends Component {
   componentDidMount() {
@@ -13,12 +16,18 @@ export default class Map extends Component {
       center: [136.6, 35.5],
       hash: true
     });
-  }
 
+    this.map.on('load', () => {
+      this.child.onload(this.map);
+    });
+  }
 
   render() {
     return (
-      <div ref={el => this.mapContainer = el} id="map" />
+      <div className="app">
+        <div ref={el => this.mapContainer = el} id="map" />
+        <WeatherInfoLayer ref={ref => this.child = ref} />
+      </div>
     );
   }
 }
