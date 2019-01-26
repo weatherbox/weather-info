@@ -2,6 +2,10 @@ import React, { Component } from 'react';
 import mapboxgl from 'mapbox-gl';
 
 export default class Map extends Component {
+  componentDidMount() {
+    this.loadWeatherInfo();
+  }
+
   onload(map) {
     this.map = map;
 
@@ -21,6 +25,25 @@ export default class Map extends Component {
         "line-color": "rgba(123, 124, 125, 0.7)"
       }
     });
+
+    this.renderWeatherInfo();
+  }
+
+  loadWeatherInfo() {
+    const timestamp = new Date().getTime();
+    fetch('https://storage.googleapis.com/weather-info/weather-info-all.json?' + timestamp, {mode: 'cors'})
+      .then(res => res.json())
+      .then(data => {
+        console.log(data);
+        this.weatherInfo = data;
+        this.renderWeatherInfo();
+      });
+  }
+
+  renderWeatherInfo() {
+    if (!this.map || this.weatherInfo) return;
+
+
   }
 
   render() {
