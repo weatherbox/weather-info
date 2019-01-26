@@ -11,10 +11,11 @@ export default class Map extends Component {
   componentDidMount() {
     this.map = new mapboxgl.Map({
       container: this.mapContainer,
-      style: 'mapbox://styles/tattii/cj3jrmgsp002i2rt50tobxo27',
+      style: 'mapbox://styles/tattii/cjrdf8jy60arr2tpz9tcvdseo',
       zoom: 5,
       center: [136.6, 35.5],
-      hash: true
+      hash: true,
+      attributionControl: false
     });
 
     this.map.on('load', () => {

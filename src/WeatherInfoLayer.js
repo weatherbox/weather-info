@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import mapboxgl from 'mapbox-gl';
 
 export default class Map extends Component {
   componentDidMount() {
@@ -41,9 +40,37 @@ export default class Map extends Component {
   }
 
   renderWeatherInfo() {
-    if (!this.map || this.weatherInfo) return;
+    if (!this.map || !this.weatherInfo) return;
 
+    const now = Date.now();
+    var stops = [];
 
+    for (let code in this.weatherInfo.prefs){
+      const pref = this.weatherInfo.prefs[code];
+      const time = new Date(pref.time);
+
+      // last 24h
+      if ((now - time) <= 24 * 3600 * 1000){
+        console.log(pref);
+        stops.push([code, 'rgba(0, 49, 73, 0.5)']);
+      }
+    }
+
+    this.map.addLayer({
+      "id": "warning-info-pref",
+      "type": "fill",
+      "source": "pref-vt",
+      "source-layer": "prefallgeojson",
+      "paint": {
+        "fill-color": {
+          "property": "prefCode",
+          "type": "categorical",
+          "stops": stops,
+          "default": "rgba(0, 0, 0, 0)"
+        },
+        "fill-outline-color": "rgba(123, 124, 125, 0.7)"
+      }
+    });
   }
 
   render() {
