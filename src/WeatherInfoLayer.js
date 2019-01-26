@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 
-export default class Map extends Component {
+import WeatherInfoSidebar from './WeatherInfoSidebar';
+
+export default class WeatherInfoLayer extends Component {
   componentDidMount() {
     this.loadWeatherInfo();
   }
@@ -74,7 +76,9 @@ export default class Map extends Component {
   }
 
   render() {
-    return null;
+    return (
+      <WeatherInfoSidebar />
+    );
   }
 }
 
