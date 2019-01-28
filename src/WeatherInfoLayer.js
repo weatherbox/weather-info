@@ -31,6 +31,13 @@ const hokkaidoPrefCodes = {
 
 
 export default class WeatherInfoLayer extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      regions: {}
+    };
+  }
+
   componentDidMount() {
     this.loadWeatherInfo();
   }
@@ -72,6 +79,15 @@ export default class WeatherInfoLayer extends Component {
   renderWeatherInfo() {
     if (!this.map || !this.weatherInfo) return;
 
+    this.renderWeatherInfoPrefs();
+    this.renderWeatherInfoRegions();
+
+    this.setState({
+      regions: this.weatherInfo.regions
+    });
+  }
+
+  renderWeatherInfoPrefs() {
     const now = Date.now();
     var stops = [];
 
@@ -108,10 +124,27 @@ export default class WeatherInfoLayer extends Component {
       }
     });
   }
+  
+  renderWeatherInfoRegions() {
+    const now = Date.now();
+    var stops = [];
+
+    for (let code in this.weatherInfo.regions){
+      const region = this.weatherInfo.regions[code];
+      const time = new Date(region.time);
+
+      // last 24
+      if ((now - time) <= 24 * 3600 * 1000){
+        console.log(region);
+      }
+    }
+  }
 
   render() {
     return (
-      <WeatherInfoSidebar />
+      <WeatherInfoSidebar
+        regions={this.state.regions}
+      />
     );
   }
 }
