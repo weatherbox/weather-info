@@ -32,18 +32,36 @@ const regionList = (regions) => {
   const now = Date.now();
 
   return (
-    <List>
+    <List inverted relaxed>
       {keys.map(code => {
         const region = regions[code];
         const time = new Date(region.time);
 
         // last 24h
-        if ((now - time) <= 24 * 3600 * 1000){
-          return (<List.Item key={code}>{region.title}</List.Item>);
+        if ((now - time) <= 7 * 24 * 3600 * 1000){
+          const title = region.title + " 第" + region.serial + "号";
+          const time_str = reportTime(time);
+          return (
+            <List.Item key={code}>
+              <List.Content>
+                <List.Header>{title}</List.Header>
+                <List.Description>{time_str}</List.Description>
+              </List.Content>
+            </List.Item>
+          );
         }
       })}
     </List>
   );
 };
 
+function reportTime(t) {
+    var date = pad(t.getMonth() + 1) + '/' + pad(t.getDate());
+    var time = pad(t.getHours()) + ':' + pad(t.getMinutes());
+    return date + ' ' + time;
+}
+
+function pad(x) {
+  return ('0' + x).slice(-2);
+}
 
