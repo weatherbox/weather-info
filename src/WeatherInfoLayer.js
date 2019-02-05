@@ -52,6 +52,13 @@ export default class WeatherInfoLayer extends Component {
       "tiles": ["https://weatherbox.github.io/warning-area-vt/pref/{z}/{x}/{y}.pbf"]
     });
 
+    this.map.addSource("region-vt", {
+      "type": "vector",
+      "minzoom": 0,
+      "maxzoom": 8,
+      "tiles": ["https://weatherbox.github.io/warning-area-vt/region/{z}/{x}/{y}.pbf"]
+    });
+
     this.map.addLayer({
       "id": "pref-line",
       "type": "line",
@@ -61,7 +68,7 @@ export default class WeatherInfoLayer extends Component {
         "line-color": "rgba(123, 124, 125, 0.7)"
       }
     });
-
+    
     this.renderWeatherInfo();
   }
 
@@ -127,17 +134,32 @@ export default class WeatherInfoLayer extends Component {
   
   renderWeatherInfoRegions() {
     const now = Date.now();
-    var stops = [];
+    var codes = [];
 
     for (let code in this.weatherInfo.regions){
       const region = this.weatherInfo.regions[code];
       const time = new Date(region.time);
 
       // last 24
-      if ((now - time) <= 24 * 3600 * 1000){
-        console.log(region);
+      if ((now - time) <= 7 * 24 * 3600 * 1000){
+        codes.push(code);
       }
     }
+    
+    this.map.addLayer({
+      "id": "warning-info-region",
+      "type": "line",
+      "source": "region-vt",
+      "source-layer": "region",
+      "paint": {
+        "line-color": "rgba(0, 49, 73, 0.9)",
+        "line-width": 3
+      },
+      "layout": {
+        "line-join": "round"
+      },
+      "filter": ["in", "code"].concat(codes)
+    });
   }
 
   render() {
