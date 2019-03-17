@@ -7,6 +7,11 @@ const {PubSub} = require('@google-cloud/pubsub');
 const {Storage} = require('@google-cloud/storage');
 const bucketName = 'weather-info';
 
+const Datastore = require('@google-cloud/datastore');
+const projectId = 'weatherbox-217409';
+const datastore = new Datastore({ projectId });
+
+
 // from command line
 if (process.argv.length > 2){
   var url = process.argv[2];
@@ -33,7 +38,7 @@ async function parse(data, url) {
   var parser = new xml2js.Parser();
   
   parser.parseString(data, (err, xml) => {
-    console.log(JSON.stringify(xml, null, 2));
+    //console.log(JSON.stringify(xml, null, 2));
     if (xml.Report.Control[0].Status[0] != '通常') return;
 
     var data = {};
@@ -52,7 +57,7 @@ async function parse(data, url) {
 
     // analyze
     var titles = data.title.split("に関する");
-    data.weather_type = titles[0];
+    data.weatherTypes = titles[0].split(/と|及び/);
 
     // area/code
     data.area = titles[1].replace("気象情報", "");
@@ -62,6 +67,7 @@ async function parse(data, url) {
 
     console.log(data);
     uploadPublic("d/" + data.ID + ".json", data);
+    saveDatastore(data.id, data.datetime, data.code, data.title, data.headline);
   });
 }
 
@@ -81,6 +87,43 @@ function uploadPublic(filename, data) {
     file.makePublic();
   });
 }
+
+async function saveDatastore(id, datetime, code, title, headline) {
+  const entity = {
+    key: datastore.key(['jma-xml-weather-info', id]),
+    data: [
+      {
+        name: 'datetime',
+        value: datetime,
+        excludeFromIndexes: false,
+      },
+      {
+        name: 'code',
+        value: code,
+        excludeFromIndexes: false,
+      },
+      {
+        name: 'title',
+        value: title,
+        excludeFromIndexes: true,
+      },
+      {
+        name: 'headline',
+        value: headline,
+        excludeFromIndexes: true,
+      }
+    ]
+  };
+
+  try {
+    await datastore.save(entity);
+    console.log('created successfully.');
+  } catch (err) {
+    console.error('ERROR:', err);
+  }
+}
+
+
 
 var regions = {
   "北海道地方": "010100",
