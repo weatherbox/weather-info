@@ -12,16 +12,6 @@ const projectId = 'weatherbox-217409';
 const datastore = new Datastore({ projectId });
 
 
-// from command line
-if (process.argv.length > 2){
-  var url = process.argv[2];
-
-  request(url, (err, res, body) => {
-      parse(body, url);
-  });
-}
-
-
 exports.handler = (event, context) => {
   const pubsubMessage = event.data;
   const message = JSON.parse(Buffer.from(pubsubMessage, 'base64').toString());
@@ -67,7 +57,7 @@ async function parse(data, url) {
 
     console.log(data);
     uploadPublic("d/" + data.ID + ".json", data);
-    saveDatastore(data.id, data.datetime, data.code, data.title, data.headline);
+    saveDatastore(data.ID, data.datetime, data.code, data.title, data.headline);
   });
 }
 
