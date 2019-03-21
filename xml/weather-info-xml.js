@@ -42,7 +42,7 @@ async function parse(data, url) {
     data.comment  = xml.Report.Body[0].Comment[0].Text[0]._;
 
     // ID
-    data.ID = data.eventID + ('000' + data.serial).slice(-3);
+    data.id = data.eventID + ('000' + data.serial).slice(-3);
     data.url = url;
 
     // analyze
@@ -56,8 +56,8 @@ async function parse(data, url) {
       : prefs[data.area];
 
     console.log(data);
-    uploadPublic("d/" + data.ID + ".json", data);
-    saveDatastore(data.ID, data.datetime, data.code, data.title, data.headline);
+    uploadPublic("d/" + data.id + ".json", data);
+    saveDatastore(data.id, data.datetime, data.code, data.title, data.headline);
   });
 }
 
@@ -107,12 +107,27 @@ async function saveDatastore(id, datetime, code, title, headline) {
 
   try {
     await datastore.save(entity);
-    console.log('created successfully.');
+    publishUpdate({ id });
+
   } catch (err) {
     console.error('ERROR:', err);
   }
 }
 
+
+function publishUpdate(data) {
+  const topicName = 'jma-xml-weather-info-update';
+  const pubsub = new PubSub({projectId});
+  const publisher = pubsub.topic(topicName).publisher();
+
+  publisher.publish(Buffer.from(JSON.stringify(data)), (err) => {
+    if (err) {
+      console.error('ERROR:', err);
+    } else {
+      console.log("published: " + topicName);
+    }
+  });
+}
 
 
 var regions = {
