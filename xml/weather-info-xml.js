@@ -62,10 +62,9 @@ async function parse(data, url) {
 }
 
 
-function uploadPublic(filename, data) {
+async function uploadPublic(filename, data) {
   const storage = new Storage();
-  const bucket = storage.bucket(bucketName);
-  const file = bucket.file(filename);
+  const file = await storage.bucket(bucketName).file(filename);
   file.save(JSON.stringify(data), {
     contentType: 'application/json',
     gzip: true,
@@ -73,7 +72,7 @@ function uploadPublic(filename, data) {
       cacheControl: 'no-cache'
     }
   }, function (err) { 
-    if (err) console.error(err);
+    if (err) return console.error(err);
     file.makePublic();
   });
 }
