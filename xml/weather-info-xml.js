@@ -1,5 +1,3 @@
-const path = require('path');
-
 const request = require('request');
 const xml2js = require('xml2js');
 
@@ -21,7 +19,6 @@ exports.handler = (event, context) => {
     parse(body, message.url);
   });
 };
-
 
 
 async function parse(data, url) {
@@ -83,7 +80,7 @@ async function saveDatastore(id, datetime, code, title, headline) {
     data: [
       {
         name: 'datetime',
-        value: datetime,
+        value: new Date(datetime),
         excludeFromIndexes: false,
       },
       {
