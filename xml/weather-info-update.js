@@ -16,7 +16,7 @@ query();
 
 
 async function query() {
-  const from = new Date(Date.now() - 72 * 3600 * 1000);
+  const from = new Date(Date.now() - 48 * 3600 * 1000);
   const query = datastore
     .createQuery('jma-xml-weather-info')
     .filter('datetime', '>', from)
@@ -29,7 +29,6 @@ async function query() {
 
 
 async function makeAllJson(infos) {
-  const from = new Date(Date.now() - 72 * 3600 * 1000);
   const alljson = {
     general: null,
     regions: {},
@@ -40,18 +39,16 @@ async function makeAllJson(infos) {
   infos.forEach(d => {
     const id = d[datastore.KEY].name;
     const code = d.code;
-    const data = { id, datetime: d.datetime, title: d.title, headline: d.headline };
-
-    if (new Date(data.datetime) < from) return;
+    const data = { id, datetime: d.datetime, title: d.title, headline: d.headline, count: 1 };
 
     if (/全般気象情報/.test(data.title)) {
       alljson.general = data;
 
     } else if (/地方/.test(data.title)) {
-      alljson.regions[code] = data;
+      updateDataCount(alljson.regions, code, data);
 
     } else {
-      alljson.prefs[code] = data;
+      updateDataCount(alljson.prefs, code, data);
     }
 
     alljson.lastUpdated = d.datetime;
@@ -59,6 +56,13 @@ async function makeAllJson(infos) {
 
   console.log(alljson);
   uploadPublic(AllJson, alljson);
+}
+
+function updateDataCount(list, key, data) {
+  if (list[key]) {
+    data.count = list[key].count + 1;
+  }
+  list[key] = data;
 }
 
 
