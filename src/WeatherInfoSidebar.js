@@ -19,14 +19,14 @@ export default class WeatherInfoSidebar extends Component {
           <Header as='h2'>気象情報</Header>
           <Header as='h3'>全般</Header>
           <Header as='h3'>地方</Header>
-          {regionList(this.props.regions)}
+          {regionList(this.props.regions, this.props.period)}
         </div>
       </Sidebar>
     );
   }
 }
 
-const regionList = (regions) => {
+const regionList = (regions, period) => {
   const keys = Object.keys(regions).sort();
   if (keys.length <= 0) return null;
   const now = Date.now();
@@ -35,11 +35,10 @@ const regionList = (regions) => {
     <List inverted relaxed>
       {keys.map(code => {
         const region = regions[code];
-        const time = new Date(region.time);
+        const time = new Date(region.datetime);
 
-        // last 24h
-        if ((now - time) <= 7 * 24 * 3600 * 1000){
-          const title = region.title + " 第" + region.serial + "号";
+        if ((now - time) <= period * 3600 * 1000){
+          const title = region.title + " 第" + parseInt(region.id.slice(-3)) + "号";
           const time_str = reportTime(time);
           return (
             <List.Item key={code}>

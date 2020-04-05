@@ -65,7 +65,7 @@ export default class WeatherInfoLayer extends Component {
       "source": "pref-vt",
       "source-layer": "prefallgeojson",
       "paint": {
-        "line-color": "rgba(123, 124, 125, 0.7)"
+        "line-color": "rgba(55, 55, 55, 0.4)"
       }
     });
     
@@ -100,10 +100,9 @@ export default class WeatherInfoLayer extends Component {
 
     for (let code in this.weatherInfo.prefs){
       const pref = this.weatherInfo.prefs[code];
-      const time = new Date(pref.time);
+      const time = new Date(pref.datetime);
 
-      // last 24h
-      if ((now - time) <= 24 * 3600 * 1000){
+      if ((now - time) <= this.props.period * 3600 * 1000){
         if (code in hokkaidoPrefCodes){
           for (let c of hokkaidoPrefCodes[code]){
             stops.push([c, 'rgba(0, 49, 73, 0.5)']);
@@ -127,7 +126,6 @@ export default class WeatherInfoLayer extends Component {
           "stops": stops,
           "default": "rgba(0, 0, 0, 0)"
         },
-        "fill-outline-color": "rgba(123, 124, 125, 0.7)"
       }
     });
   }
@@ -138,10 +136,9 @@ export default class WeatherInfoLayer extends Component {
 
     for (let code in this.weatherInfo.regions){
       const region = this.weatherInfo.regions[code];
-      const time = new Date(region.time);
+      const time = new Date(region.datetime);
 
-      // last 24
-      if ((now - time) <= 7 * 24 * 3600 * 1000){
+      if ((now - time) <= this.props.period * 3600 * 1000){
         codes.push(code);
       }
     }
@@ -166,6 +163,7 @@ export default class WeatherInfoLayer extends Component {
     return (
       <WeatherInfoSidebar
         regions={this.state.regions}
+        period={this.props.period}
       />
     );
   }
