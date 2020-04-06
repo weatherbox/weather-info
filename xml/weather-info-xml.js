@@ -48,14 +48,31 @@ async function parse(data, url) {
 
     // area/code
     data.area = titles[1].replace("気象情報", "");
-    data.code = (data.area == "全般") ? "010000"
-      : (data.type == "地方気象情報") ? regions[data.area]
-      : prefs[data.area];
+    data.code = getCode(data.area, data.type); 
+
+    var typeCode = {
+      '全般気象情報': 0,
+      '地方気象情報': 1,
+      '府県気象情報': 2
+    };
+    data.publisher = data.eventID.substr(0, 4) + typeCode[data.type];
 
     console.log(data);
     uploadPublic("d/" + data.id + ".json", data);
-    saveDatastore(data.id, data.datetime, data.code, data.title, data.headline);
+    saveDatastore(data.id, data);
   });
+}
+
+function getCode(area, type) {
+  if (type == "全般気象情報") {
+    return "010000";
+  } else if (type == "地方気象情報") {
+    return regions[area];
+  } else if (area in prefs) {
+    return prefs[data.area];
+  } else if (area.includes("東京都")) {
+    return "130100"; // 伊豆諸島、小笠原諸島
+  }
 }
 
 
@@ -74,28 +91,38 @@ async function uploadPublic(filename, data) {
   });
 }
 
-async function saveDatastore(id, datetime, code, title, headline) {
+async function saveDatastore(id, data) {
   const entity = {
     key: datastore.key(['jma-xml-weather-info', id]),
     data: [
       {
         name: 'datetime',
-        value: new Date(datetime),
+        value: new Date(data.datetime),
         excludeFromIndexes: false,
       },
       {
         name: 'code',
-        value: code,
+        value: data.code,
         excludeFromIndexes: false,
       },
       {
+        name: 'type',
+        value: data.type,
+        excludeFromIndexes: true,
+      },
+      {
+        name: 'publisher',
+        value: data.publisher,
+        excludeFromIndexes: true,
+      },
+      {
         name: 'title',
-        value: title,
+        value: data.title,
         excludeFromIndexes: true,
       },
       {
         name: 'headline',
-        value: headline,
+        value: data.headline,
         excludeFromIndexes: true,
       }
     ]
@@ -136,7 +163,7 @@ var regions = {
   "中国地方": "010700",
   "四国地方": "010800",
   "九州北部地方（山口県を含む）": "010900",
-  "九州南部・奄美地方": "011000",
+  "九州南部・奄美地方": "011000", // xxx
   "沖縄地方": "011100",
 };
 
@@ -163,7 +190,7 @@ var prefs = {
   "埼玉県": "110000",
   "千葉県": "120000",
   "東京都": "130000",
-  "東京都（伊豆諸島）": "130100",
+  "東京都（伊豆諸島）": "130100",  //
   "神奈川県": "140000",
   "新潟県": "150000",
   "富山県": "160000",
