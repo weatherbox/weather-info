@@ -1,8 +1,9 @@
 export default class WeatherInfoLayer {
-  constructor(map, data, period) {
+  constructor(map, data, period, onSelected) {
     this.map = map;
     this.weatherInfo = data;
     this.period = period;
+    this.onSelected = onSelected;
 
     this.map.addSource("pref-vt", {
       "type": "vector",
@@ -21,6 +22,21 @@ export default class WeatherInfoLayer {
       }
     });
     this.renderWeatherInfoPrefs();
+    this.map.addLayer({
+      "id": "pref-line-selected",
+      "type": "line",
+      "source": "pref-vt",
+      "source-layer": "prefallgeojson",
+      "paint": {
+        "line-color": "rgba(70, 171, 199, 0.4)",
+        "line-width": 2
+      },
+      filter: ["==", "prefCode", "0"]
+    });
+    
+    this.map.on('click', 'weather-info-pref', (e) => {
+      this.onClick(e);
+    });
   }
 
   renderWeatherInfoPrefs() {
@@ -57,12 +73,39 @@ export default class WeatherInfoLayer {
         },
       }
     });
-
   }
 
   getColor(count) {
     const opacity = Math.min(0.2 + 0.1 * count, 0.8);
     return `rgba(0, 49, 73, ${opacity})`;
+  }
+
+  onClick(e) {
+    if (e.features) {
+      console.log(e.features[0].properties);
+      const code = this.getCode(e.features[0].properties.prefCode);
+      this.select(code);
+      this.onSelected(code);
+    }
+  }
+
+  getCode(prefCode) {
+    if (prefCode.substr(0, 2) === '01') {
+      for (let code in hokkaidoPrefCodes) {
+        if (hokkaidoPrefCodes[code].includes(prefCode)) return code;
+      }
+
+    } else {
+      return prefCode;
+    }
+  }
+
+  select(code) {
+    let filter = [code];
+    if (code in hokkaidoPrefCodes){
+      filter = hokkaidoPrefCodes[code];
+    }
+    this.map.setFilter('pref-line-selected', ['in', 'prefCode', ...filter]);
   }
 }
 

@@ -31,7 +31,7 @@ export default class WeatherInfo extends Component {
 
   addLayer() {
     if (!this.map || !this.weatherInfo) return;
-    this.layer = new WeatherInfoLayer(this.map, this.weatherInfo, this.props.period);
+    this.layer = new WeatherInfoLayer(this.map, this.weatherInfo, this.props.period, this.onSelected);
   }
 
   render() {
@@ -41,5 +41,9 @@ export default class WeatherInfo extends Component {
         period={this.props.period}
       />
     );
+  }
+
+  onSelected = (code) => {
+    console.log(this.weatherInfo.prefs[code]);
   }
 }
