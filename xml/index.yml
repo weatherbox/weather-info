@@ -1,0 +1,7 @@
+indexes:
+  - kind: jma-xml-weather-information
+    properties:
+    - name: publisher
+      direction: asc
+    - name: datetime
+      direction: desc
