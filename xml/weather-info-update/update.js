@@ -1,6 +1,6 @@
 const {Storage} = require('@google-cloud/storage');
 const bucketName = 'weather-info';
-const AllJson = 'weather-info-all-1.json';
+const AllJson = 'weather-info-all.json';
 
 const Datastore = require('@google-cloud/datastore');
 const projectId = 'weatherbox-217409';
@@ -8,10 +8,12 @@ const datastore = new Datastore({ projectId });
 
 
 exports.handler = (event, context) => {
-
+  query();
 };
 
-query();
+if (require.main === module) {
+  query();
+}
 
 
 
@@ -24,11 +26,11 @@ async function query() {
   const [infos] = await datastore.runQuery(query);
   console.log(from, infos.length);
 
-  makeAllJson(infos, from);
+  makeAllJson(infos);
 }
 
 
-async function makeAllJson(infos, from) {
+async function makeAllJson(infos) {
   console.log(infos)
   const alljson = {
     general: null,
@@ -42,11 +44,10 @@ async function makeAllJson(infos, from) {
     const code = d.code;
     const data = { id, datetime: d.datetime, title: d.title, headline: d.headline, count: 1 };
 
-    const area = data.title.match("関する(.*?)気象情報");
-    if (/全般気象情報/.test(data.title)) {
+    if (d.type == '全般気象情報') {
       alljson.general = data;
 
-    } else if (area && area[1] in regions) {
+    } else if (d.type == '地方気象情報') {
       updateDataCount(alljson.regions, code, data);
 
     } else {
@@ -83,17 +84,3 @@ async function uploadPublic(filename, data) {
   });
 }
 
-
-var regions = {
-  "北海道地方": "010100",
-  "東北地方": "010200",
-  "関東甲信地方": "010300",
-  "北陸地方": "010500",
-  "東海地方": "010400",
-  "近畿地方": "010600",
-  "中国地方": "010700",
-  "四国地方": "010800",
-  "九州北部地方（山口県を含む）": "010900",
-  "九州南部・奄美地方": "011000",
-  "沖縄地方": "011100",
-};
