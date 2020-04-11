@@ -1,6 +1,71 @@
-import React, { Component } from 'react';
+export default class WeatherInfoLayer {
+  constructor(map, data, period) {
+    this.map = map;
+    this.weatherInfo = data;
+    this.period = period;
 
-import WeatherInfoSidebar from './WeatherInfoSidebar';
+    this.map.addSource("pref-vt", {
+      "type": "vector",
+      "minzoom": 0,
+      "maxzoom": 10,
+      "tiles": ["https://weatherbox.github.io/warning-area-vt/pref/{z}/{x}/{y}.pbf"]
+    });
+
+    this.map.addLayer({
+      "id": "pref-line",
+      "type": "line",
+      "source": "pref-vt",
+      "source-layer": "prefallgeojson",
+      "paint": {
+        "line-color": "rgba(55, 55, 55, 0.4)"
+      }
+    });
+    this.renderWeatherInfoPrefs();
+  }
+
+  renderWeatherInfoPrefs() {
+    const now = Date.now();
+    var stops = [];
+
+    for (let code in this.weatherInfo.prefs){
+      const pref = this.weatherInfo.prefs[code];
+      const time = new Date(pref[0].datetime);
+
+      if ((now - time) <= this.period * 3600 * 1000){
+        if (code in hokkaidoPrefCodes){
+          for (let c of hokkaidoPrefCodes[code]){
+            stops.push([c, this.getColor(pref.length)]);
+          }
+
+        }else{
+          stops.push([code, this.getColor(pref.length)]);
+        }
+      }
+    }
+
+    this.map.addLayer({
+      "id": "weather-info-pref",
+      "type": "fill",
+      "source": "pref-vt",
+      "source-layer": "prefallgeojson",
+      "paint": {
+        "fill-color": {
+          "property": "prefCode",
+          "type": "categorical",
+          "stops": stops,
+          "default": "rgba(0, 0, 0, 0)"
+        },
+      }
+    });
+
+  }
+
+  getColor(count) {
+    const opacity = Math.min(0.2 + 0.1 * count, 0.8);
+    return `rgba(0, 49, 73, ${opacity})`;
+  }
+}
+
 
 const hokkaidoPrefCodes = {
   "011000": ["011000"], // 宗谷地方
@@ -28,113 +93,3 @@ const hokkaidoPrefCodes = {
     "017020"  // 檜山地方
   ]
 };
-
-
-export default class WeatherInfoLayer extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      regions: {}
-    };
-  }
-
-  componentDidMount() {
-    this.loadWeatherInfo();
-  }
-
-  onload(map) {
-    this.map = map;
-
-    this.map.addSource("pref-vt", {
-      "type": "vector",
-      "minzoom": 0,
-      "maxzoom": 10,
-      "tiles": ["https://weatherbox.github.io/warning-area-vt/pref/{z}/{x}/{y}.pbf"]
-    });
-
-    this.map.addLayer({
-      "id": "pref-line",
-      "type": "line",
-      "source": "pref-vt",
-      "source-layer": "prefallgeojson",
-      "paint": {
-        "line-color": "rgba(55, 55, 55, 0.4)"
-      }
-    });
-    
-    this.renderWeatherInfo();
-  }
-
-  loadWeatherInfo() {
-    const timestamp = new Date().getTime();
-    fetch('https://storage.googleapis.com/weather-info/weather-info-all.json?' + timestamp, {mode: 'cors'})
-      .then(res => res.json())
-      .then(data => {
-        console.log(data);
-        this.weatherInfo = data;
-        this.renderWeatherInfo();
-      });
-  }
-
-  renderWeatherInfo() {
-    if (!this.map || !this.weatherInfo) return;
-
-    this.renderWeatherInfoPrefs();
-
-    this.setState({
-      regions: this.weatherInfo.regions
-    });
-  }
-
-  renderWeatherInfoPrefs() {
-    const now = Date.now();
-    var stops = [];
-
-    for (let code in this.weatherInfo.prefs){
-      const pref = this.weatherInfo.prefs[code];
-      const time = new Date(pref[0].datetime);
-
-      if ((now - time) <= this.props.period * 3600 * 1000){
-        if (code in hokkaidoPrefCodes){
-          for (let c of hokkaidoPrefCodes[code]){
-            stops.push([c, this.getColor(pref.length)]);
-          }
-
-        }else{
-          stops.push([code, this.getColor(pref.length)]);
-        }
-      }
-    }
-
-    this.map.addLayer({
-      "id": "warning-info-pref",
-      "type": "fill",
-      "source": "pref-vt",
-      "source-layer": "prefallgeojson",
-      "paint": {
-        "fill-color": {
-          "property": "prefCode",
-          "type": "categorical",
-          "stops": stops,
-          "default": "rgba(0, 0, 0, 0)"
-        },
-      }
-    });
-  }
-
-  getColor(count) {
-    const opacity = Math.min(0.2 + 0.1 * count, 0.8);
-    return `rgba(0, 49, 73, ${opacity})`;
-  }
-  
-  render() {
-    return (
-      <WeatherInfoSidebar
-        data={this.weatherInfo}
-        period={this.props.period}
-      />
-    );
-  }
-}
-
-

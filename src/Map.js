@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css'
 
-import WeatherInfoLayer from './WeatherInfoLayer';
+import WeatherInfo from './WeatherInfo';
 
 mapboxgl.accessToken = 'pk.eyJ1IjoidGF0dGlpIiwiYSI6ImNqZWZ4eWM3NTI2cGszM2xpYXEyZndpd3IifQ.ifzbR45HecVGxChbdR2hiw';
 
@@ -28,7 +28,7 @@ export default class Map extends Component {
     return (
       <div className="app">
         <div ref={el => this.mapContainer = el} id="map" />
-        <WeatherInfoLayer 
+        <WeatherInfo
           ref={ref => this.child = ref}
           period={2400}
         />

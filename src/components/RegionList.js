@@ -30,6 +30,7 @@ export default class RegionList extends Component {
                 </List.Item>
               );
             }
+            return null;
           })}
         </List>
       </div>

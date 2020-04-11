@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Sidebar, Header, List } from 'semantic-ui-react';
+import { Sidebar, Header } from 'semantic-ui-react';
 
 import './Sidebar.css';
 
