@@ -69,7 +69,7 @@ function getCode(area, type) {
   } else if (type == "地方気象情報") {
     return regions[area];
   } else if (area in prefs) {
-    return prefs[data.area];
+    return prefs[area];
   } else if (area.includes("東京都")) {
     return "130100"; // 伊豆諸島、小笠原諸島
   }
