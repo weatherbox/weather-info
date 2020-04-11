@@ -1,4 +1,4 @@
-const weatherInfoXML = require('./weather-info-xml');
+const weatherInfoXML = require('./index');
 
 // from command line
 if (process.argv.length > 2){

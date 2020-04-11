@@ -93,7 +93,7 @@ async function uploadPublic(filename, data) {
 
 async function saveDatastore(id, data) {
   const entity = {
-    key: datastore.key(['jma-xml-weather-info', id]),
+    key: datastore.key(['jma-xml-weather-information', id]),
     data: [
       {
         name: 'datetime',
@@ -103,7 +103,7 @@ async function saveDatastore(id, data) {
       {
         name: 'code',
         value: data.code,
-        excludeFromIndexes: false,
+        excludeFromIndexes: true,
       },
       {
         name: 'type',
@@ -113,7 +113,7 @@ async function saveDatastore(id, data) {
       {
         name: 'publisher',
         value: data.publisher,
-        excludeFromIndexes: true,
+        excludeFromIndexes: false,
       },
       {
         name: 'title',
