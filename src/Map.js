@@ -33,6 +33,6 @@ export default class Map extends Component {
           period={2400}
         />
       </div>
-    );
+    )
   }
 }

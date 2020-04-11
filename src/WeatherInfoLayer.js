@@ -52,13 +52,6 @@ export default class WeatherInfoLayer extends Component {
       "tiles": ["https://weatherbox.github.io/warning-area-vt/pref/{z}/{x}/{y}.pbf"]
     });
 
-    this.map.addSource("region-vt", {
-      "type": "vector",
-      "minzoom": 0,
-      "maxzoom": 8,
-      "tiles": ["https://weatherbox.github.io/warning-area-vt/region/{z}/{x}/{y}.pbf"]
-    });
-
     this.map.addLayer({
       "id": "pref-line",
       "type": "line",
@@ -87,7 +80,6 @@ export default class WeatherInfoLayer extends Component {
     if (!this.map || !this.weatherInfo) return;
 
     this.renderWeatherInfoPrefs();
-    this.renderWeatherInfoRegions();
 
     this.setState({
       regions: this.weatherInfo.regions
@@ -100,16 +92,16 @@ export default class WeatherInfoLayer extends Component {
 
     for (let code in this.weatherInfo.prefs){
       const pref = this.weatherInfo.prefs[code];
-      const time = new Date(pref.datetime);
+      const time = new Date(pref[0].datetime);
 
       if ((now - time) <= this.props.period * 3600 * 1000){
         if (code in hokkaidoPrefCodes){
           for (let c of hokkaidoPrefCodes[code]){
-            stops.push([c, 'rgba(0, 49, 73, 0.5)']);
+            stops.push([c, this.getColor(pref.length)]);
           }
 
         }else{
-          stops.push([code, 'rgba(0, 49, 73, 0.5)']);
+          stops.push([code, this.getColor(pref.length)]);
         }
       }
     }
@@ -129,40 +121,16 @@ export default class WeatherInfoLayer extends Component {
       }
     });
   }
-  
-  renderWeatherInfoRegions() {
-    const now = Date.now();
-    var codes = [];
 
-    for (let code in this.weatherInfo.regions){
-      const region = this.weatherInfo.regions[code];
-      const time = new Date(region.datetime);
-
-      if ((now - time) <= this.props.period * 3600 * 1000){
-        codes.push(code);
-      }
-    }
-    
-    this.map.addLayer({
-      "id": "warning-info-region",
-      "type": "line",
-      "source": "region-vt",
-      "source-layer": "region",
-      "paint": {
-        "line-color": "rgba(0, 49, 73, 0.9)",
-        "line-width": 3
-      },
-      "layout": {
-        "line-join": "round"
-      },
-      "filter": ["in", "code"].concat(codes)
-    });
+  getColor(count) {
+    const opacity = Math.min(0.2 + 0.1 * count, 0.8);
+    return `rgba(0, 49, 73, ${opacity})`;
   }
-
+  
   render() {
     return (
       <WeatherInfoSidebar
-        regions={this.state.regions}
+        data={this.weatherInfo}
         period={this.props.period}
       />
     );
