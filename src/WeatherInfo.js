@@ -8,7 +8,6 @@ const url = 'https://storage.googleapis.com/weather-info/weather-info-all.json';
 export default class WeatherInfo extends Component {
   state = {
     info: null,
-    showPref: null
   };
 
   componentDidMount() {
@@ -42,7 +41,7 @@ export default class WeatherInfo extends Component {
       <WeatherInfoSidebar
         data={this.state.info}
         period={this.props.period}
-        showPref={this.state.showPref}
+        ref={el => this.sidebar = el}
       />
     );
   }
@@ -50,7 +49,7 @@ export default class WeatherInfo extends Component {
   onSelected = (code) => {
     console.log(this.weatherInfo.prefs[code]);
     if (this.weatherInfo.prefs[code]) {
-      this.setState({ showPref: code });
+      this.sidebar.showPref(code);
     }
   }
 }

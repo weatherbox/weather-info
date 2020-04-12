@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { Header } from 'semantic-ui-react';
 
 const bucket = 'https://storage.googleapis.com/weather-info/d/';
 
@@ -11,7 +10,6 @@ export default class Detail extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    //if (this.props.id !== prevProps.id) this.fetch();
     if (this.props.show && !prevProps.show) this.fetch();
   }
 
@@ -30,7 +28,6 @@ export default class Detail extends Component {
 
     return (
       <div className="info-detail">
-        
         {this.state.detail.comment}
       </div>
     );

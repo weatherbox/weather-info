@@ -21,13 +21,14 @@ export default class General extends Component {
     const time = new Date(info.datetime);
 
     if ((Date.now() - time) <= this.props.period * 3600 * 1000){
-      const title = info.title + " 第" + parseInt(info.id.slice(-3)) + "号";
-      const time_str = reportTime(time);
+      const title = info.title;
+      const time_str = reportTime(time) + " 第" + parseInt(info.id.slice(-3)) + "号";
       return (
-        <List.Item>
+        <List.Item onClick={this.props.onClick} >
           <List.Content>
             <List.Header>{title}</List.Header>
             <List.Description>{time_str}</List.Description>
+            <p className="info-list-headline">{info.headline}</p>
           </List.Content>
         </List.Item>
       );

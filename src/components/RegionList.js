@@ -19,8 +19,8 @@ export default class RegionList extends Component {
             const time = new Date(region.datetime);
 
             if ((now - time) <= this.props.period * 3600 * 1000){
-              const title = region.title + " 第" + parseInt(region.id.slice(-3)) + "号";
-              const time_str = reportTime(time);
+              const title = region.title;
+              const time_str = reportTime(time) + " 第" + parseInt(region.id.slice(-3)) + "号";
               return (
                 <List.Item key={code}>
                   <List.Content>
