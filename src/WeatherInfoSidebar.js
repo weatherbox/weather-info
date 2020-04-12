@@ -3,10 +3,11 @@ import { Sidebar, Header } from 'semantic-ui-react';
 
 import './Sidebar.css';
 
-import General from './components/General';
+import GeneralIndex from './components/GeneralIndex';
 import RegionList from './components/RegionList';
 
-import GeneralList from './components/GeneralList';
+import General from './components/General';
+import Region from './components/Region';
 import Pref from './components/Pref';
 
 export default class WeatherInfoSidebar extends Component {
@@ -32,12 +33,16 @@ export default class WeatherInfoSidebar extends Component {
         <Header as='h2'>気象情報</Header>
         {this.props.data ?
           <>
-            <General
+            <GeneralIndex
               info={this.props.data.general}
               period={this.props.period}
               onClick={() => this.setState({ show: { type: 'general' } })}
             />
-            <RegionList regions={this.props.data.regions} period={this.props.period} />
+            <RegionList
+              regions={this.props.data.regions}
+              period={this.props.period}
+              onClick={(code) => this.setState({ show: { type: 'region', code } })}
+            />
           </>
         : null}
       </div>
@@ -54,6 +59,9 @@ export default class WeatherInfoSidebar extends Component {
     if (show.type === 'general') {
       return this.renderGeneral();
 
+    } else if (show.type === 'region') {
+      return this.renderRegion(show.code);
+
     } else if (show.type === 'pref') {
       return this.renderPref(show.code);
     }
@@ -62,7 +70,15 @@ export default class WeatherInfoSidebar extends Component {
   renderGeneral() {
     if (this.props.data && this.props.data.general) {
       return (
-        <GeneralList info={this.props.data.general} />
+        <General info={this.props.data.general} />
+      );
+    }
+  }
+  
+  renderRegion(code) {
+    if (this.props.data && this.props.data.regions[code]) {
+      return (
+        <Region info={this.props.data.regions[code]} />
       );
     }
   }
