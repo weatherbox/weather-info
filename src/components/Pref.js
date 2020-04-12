@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
-import { Header, Accordion, Icon } from 'semantic-ui-react';
+import { Header, Accordion, Icon, Divider } from 'semantic-ui-react';
 
-import { reportTime } from '../util'
+import { reportTime } from '../util';
+import Detail from './Detail';
+
 
 export default class Pref extends Component {
   state = { activeIndex: 0 }
@@ -40,10 +42,13 @@ export default class Pref extends Component {
       >
         <Icon name='dropdown' />
         <span className="info-title">{title}</span>
-        <p>{time_str}</p>
+        <p className="info-time">{time_str}</p>
         <p>{info.headline}</p>
       </Accordion.Title>
       <Accordion.Content active={activeIndex === i} >
+        <Divider />
+        <Detail key={info.id} id={info.id} show={activeIndex === i} />
+        <Divider />
       </Accordion.Content>
     </div>;
   }

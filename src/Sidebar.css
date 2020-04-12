@@ -1,6 +1,6 @@
 .ui.sidebar.overlay.sidebar-dark {
 	background: rgba(0, 0, 0, 0.7);
-	color: #fff;
+	color: #ccc;
 	width: 600px;
 	padding: 20px;
 }
@@ -17,4 +17,14 @@
 .accordion-item .info-title {
 	font-size: 16px;
 	font-weight: bold;
+}
+
+.accordion-item .info-time {
+	font-size: 12px;
+	margin-left: 22px;
+}
+
+.info-detail {
+	white-space: pre-wrap;
+	margin-bottom: 10px;
 }
