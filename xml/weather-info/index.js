@@ -1,4 +1,4 @@
-const request = require('request');
+const rp = require('request-promise');
 const xml2js = require('xml2js');
 
 const {PubSub} = require('@google-cloud/pubsub');
@@ -10,57 +10,53 @@ const projectId = 'weatherbox-217409';
 const datastore = new Datastore({ projectId });
 
 
-exports.handler = (event, context) => {
+exports.handler = async (event, context) => {
   const pubsubMessage = event.data;
   const message = JSON.parse(Buffer.from(pubsubMessage, 'base64').toString());
   console.log(message);
 
-  request(message.url, (err, res, body) => {
-    parse(body, message.url);
-  });
+  await process(message.url);
 };
 
 
-async function parse(data, url) {
-  var parser = new xml2js.Parser();
+async function process(url) {
+  const xmldata = await rp(url);
+  const xml = await parseXML(xmldata);
   
-  parser.parseString(data, (err, xml) => {
-    //console.log(JSON.stringify(xml, null, 2));
-    if (xml.Report.Control[0].Status[0] != '通常') return;
+  if (xml.Report.Control[0].Status[0] != '通常') return;
 
-    var data = {};
-    data.type     = xml.Report.Control[0].Title[0];
-    data.office   = xml.Report.Control[0].PublishingOffice[0];
-    data.title    = xml.Report.Head[0].Title[0];
-    data.datetime = xml.Report.Head[0].ReportDateTime[0];
-    data.eventID  = xml.Report.Head[0].EventID[0];
-    data.serial   = xml.Report.Head[0].Serial[0];
-    data.headline = xml.Report.Head[0].Headline[0].Text[0];
-    data.comment  = xml.Report.Body[0].Comment[0].Text[0]._;
+  var data = {};
+  data.type     = xml.Report.Control[0].Title[0];
+  data.office   = xml.Report.Control[0].PublishingOffice[0];
+  data.title    = xml.Report.Head[0].Title[0];
+  data.datetime = xml.Report.Head[0].ReportDateTime[0];
+  data.eventID  = xml.Report.Head[0].EventID[0];
+  data.serial   = xml.Report.Head[0].Serial[0];
+  data.headline = xml.Report.Head[0].Headline[0].Text[0];
+  data.comment  = xml.Report.Body[0].Comment[0].Text[0]._;
 
-    // ID
-    data.id = data.eventID + ('000' + data.serial).slice(-3);
-    data.url = url;
+  // ID
+  data.id = data.eventID + ('000' + data.serial).slice(-3);
+  data.url = url;
 
-    // analyze
-    var titles = data.title.split("に関する");
-    data.weatherTypes = titles[0].split(/と|及び/);
+  // analyze
+  var titles = data.title.split("に関する");
+  data.weatherTypes = titles[0].split(/と|及び/);
 
-    // area/code
-    data.area = titles[1].replace("気象情報", "");
-    data.code = getCode(data.area, data.type); 
+  // area/code
+  data.area = titles[1].replace("気象情報", "");
+  data.code = getCode(data.area, data.type); 
 
-    var typeCode = {
-      '全般気象情報': 0,
-      '地方気象情報': 1,
-      '府県気象情報': 2
-    };
-    data.publisher = data.eventID.substr(0, 4) + typeCode[data.type];
+  var typeCode = {
+    '全般気象情報': 0,
+    '地方気象情報': 1,
+    '府県気象情報': 2
+  };
+  data.publisher = data.eventID.substr(0, 4) + typeCode[data.type];
 
-    console.log(data);
-    uploadPublic("d/" + data.id + ".json", data);
-    saveDatastore(data.id, data);
-  });
+  console.log(data);
+  await uploadPublic("d/" + data.id + ".json", data);
+  await saveDatastore(data.id, data);
 }
 
 function getCode(area, type) {
@@ -73,6 +69,16 @@ function getCode(area, type) {
   } else if (area.includes("東京都")) {
     return "130100"; // 伊豆諸島、小笠原諸島
   }
+}
+
+function parseXML(data) {
+  return new Promise(function (resolve, reject) {
+    const parser = new xml2js.Parser();
+    parser.parseString(data, (err, xml) => {
+      if (err) reject(err);
+      resolve(xml);
+    });
+  });
 }
 
 
