@@ -12,7 +12,7 @@ const path = require('path');
 
 if (require.main === module) {
   //scrape('330');
-  parsePDF('https://www.jma.go.jp/jp/kishojoho/data/pdf/330_12_JPGC_202004130254_0_fuken.pdf');
+  parsePDF(process.argv[2]);
 }
 
 async function scrape(code) {
@@ -49,9 +49,20 @@ async function parsePDF(url) {
   try {
     const data = await pdf(content);
     console.log(data);
+    parsePDFText(data.text);
   } catch (e) {
     console.warn(e);
   }
+}
+
+function parsePDFText(text) {
+  const contents = text.split('\n \n');
+  const match = contents[0].replace(/\n/g, '').match(/(.*気象情報) 第(.*?)号/);
+  const title = match[1];
+  const serial = parseInt(hankaku(match[2]));
+  const headline = contents[1].replace(/\n/g, '');
+  const comment = contents[2].replace(/\n/g, '');
+  console.log({ title, serial, headline, comment });
 }
 
 async function uploadPublic(filename, data) {
@@ -65,5 +76,11 @@ async function uploadPublic(filename, data) {
   }, function (err) { 
     if (err) console.error(err);
     file.makePublic();
+  });
+}
+
+function hankaku(str) {
+  return str.replace(/[０-９]/g, function(s) {
+    return String.fromCharCode(s.charCodeAt(0) - 0xFEE0);
   });
 }
