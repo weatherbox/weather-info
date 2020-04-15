@@ -11,7 +11,6 @@ export default class Map extends Component {
   componentDidMount() {
     this.map = new mapboxgl.Map({
       container: this.mapContainer,
-      //style: 'mapbox://styles/tattii/cjrdf8jy60arr2tpz9tcvdseo',
       style: 'mapbox://styles/tattii/cj1bob6hw003t2rr5s2svi3iq',
       zoom: 5,
       center: [136.6, 35.5],
@@ -30,7 +29,7 @@ export default class Map extends Component {
         <div ref={el => this.mapContainer = el} id="map" />
         <WeatherInfo
           ref={ref => this.child = ref}
-          period={2400}
+          period={48}
         />
       </div>
     )

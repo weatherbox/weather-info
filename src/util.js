@@ -8,3 +8,9 @@ export function reportTime(t) {
 function pad(x) {
   return ('0' + x).slice(-2);
 }
+
+export function hankaku(str) {
+  return str.replace(/[０-９]/g, function(s) {
+    return String.fromCharCode(s.charCodeAt(0) - 0xFEE0);
+  }).replace(/．/g, '.');
+}

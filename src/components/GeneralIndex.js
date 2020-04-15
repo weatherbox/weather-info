@@ -18,11 +18,10 @@ export default class GeneralIndex extends Component {
   
   renderInfo() {
     const info = this.props.info[0];
-    const time = new Date(info.datetime);
 
-    if ((Date.now() - time) <= this.props.period * 3600 * 1000){
+    if (info && (Date.now() - new Date(info.datetime)) <= this.props.period * 3600 * 1000){
       const title = info.title;
-      const time_str = reportTime(time) + " 第" + parseInt(info.id.slice(-3)) + "号";
+      const time_str = reportTime(new Date(info.datetime)) + " 第" + parseInt(info.id.slice(-3)) + "号";
       return (
         <List.Item onClick={this.props.onClick} >
           <List.Content>
@@ -33,8 +32,12 @@ export default class GeneralIndex extends Component {
         </List.Item>
       );
     } else {
-      return null;
+      return this.renderNone();
     }
+  }
+
+  renderNone() {
+    return <p>過去{this.props.period}時間に発表された情報はありません</p>;
   }
 }
 

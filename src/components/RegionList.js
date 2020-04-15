@@ -21,9 +21,15 @@ export default class RegionList extends Component {
     return (
       <div>
         <Header as='h3'>地方</Header>
-        <AccordionListHeadline info={regions} onClick={this.props.onClick} />
+        {regions.length > 0 ?
+          <AccordionListHeadline info={regions} onClick={this.props.onClick} />
+        :this.renderNone()}
       </div>
     );
+  }
+  
+  renderNone() {
+    return <p>過去{this.props.period}時間に発表された情報はありません</p>;
   }
 }
 

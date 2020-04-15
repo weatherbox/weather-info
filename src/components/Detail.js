@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 
+import { hankaku } from '../util';
 const bucket = 'https://storage.googleapis.com/weather-info/d/';
 
 export default class Detail extends Component {
@@ -28,7 +29,7 @@ export default class Detail extends Component {
 
     return (
       <div className="info-detail">
-        {this.state.detail.comment}
+        {hankaku(this.state.detail.comment)}
       </div>
     );
   }
