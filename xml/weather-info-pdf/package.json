@@ -2,13 +2,13 @@
   "name": "weather-info-pdf",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+  "main": "scrape.js",
+  "scripts": {},
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@google-cloud/datastore": "^5.1.0",
+    "@google-cloud/pubsub": "^1.7.2",
     "moment": "^2.24.0",
     "node-fetch": "^2.6.0",
     "node-html-parser": "^1.2.15",
