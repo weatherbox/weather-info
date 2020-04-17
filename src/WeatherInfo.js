@@ -42,6 +42,7 @@ export default class WeatherInfo extends Component {
         data={this.state.info}
         period={this.props.period}
         ref={el => this.sidebar = el}
+        onSelectRegion={(code) => this.layer.selectRegion(code)}
       />
     );
   }

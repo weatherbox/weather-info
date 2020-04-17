@@ -25,7 +25,7 @@ export default class GeneralIndex extends Component {
       return (
         <List.Item onClick={this.props.onClick} >
           <List.Content>
-            <List.Header>{title}</List.Header>
+            <List.Header className="general-index-title">{title}</List.Header>
             <List.Description>{time_str}</List.Description>
             <p className="info-list-headline">{info.headline}</p>
           </List.Content>

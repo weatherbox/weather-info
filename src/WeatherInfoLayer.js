@@ -33,9 +33,31 @@ export default class WeatherInfoLayer {
       },
       filter: ["==", "prefCode", "0"]
     });
-    
+    this.addRegion();
+
     this.map.on('click', 'weather-info-pref', (e) => {
       this.onClick(e);
+    });
+  }
+
+  addRegion() {
+    this.map.addSource("region-vt", {
+      "type": "vector",
+      "minzoom": 0,
+      "maxzoom": 8,
+      "tiles": ["https://weatherbox.github.io/warning-area-vt/region/{z}/{x}/{y}.pbf"]
+    });
+
+    this.map.addLayer({
+      "id": "region-line-selected",
+      "type": "line",
+      "source": "region-vt",
+      "source-layer": "region",
+      "paint": {
+        "line-color": "rgba(70, 171, 199, 0.4)",
+        "line-width": 1
+      },
+      filter: ["==", "code", "0"]
     });
   }
 
@@ -106,6 +128,12 @@ export default class WeatherInfoLayer {
       filter = hokkaidoPrefCodes[code];
     }
     this.map.setFilter('pref-line-selected', ['in', 'prefCode', ...filter]);
+    this.map.setFilter('region-line-selected', ['==', 'code', '0']);
+  }
+
+  selectRegion(code) {
+    this.map.setFilter('pref-line-selected', ['==', 'prefCode', '0']);
+    this.map.setFilter('region-line-selected', ['==', 'code', code]);
   }
 }
 

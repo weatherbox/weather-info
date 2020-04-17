@@ -41,12 +41,17 @@ export default class WeatherInfoSidebar extends Component {
             <RegionList
               regions={this.props.data.regions}
               period={this.props.period}
-              onClick={(code) => this.setState({ show: { type: 'region', code } })}
+              onClick={this.selectRegion}
             />
           </>
         : null}
       </div>
     );
+  }
+
+  selectRegion = (code) => {
+    this.setState({ show: { type: 'region', code } });
+    this.props.onSelectRegion(code);
   }
 
   showPref(code) {
