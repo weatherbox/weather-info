@@ -13,9 +13,12 @@ const HTMLParser = require('node-html-parser');
 const path = require('path');
 const moment = require('moment');
 
+const slack = require('./slack');
+
+
 if (require.main === module) {
-  //scrape(process.argv[2]); // 330
-  scrape("318", "2020-04-13T11:34:00.000", { eventID: "JPTE200008", code: "120000", publisher: 'JPTE2', type: '府県気象情報' });
+  scrape(process.argv[2]); // 330
+  //scrape("318", "2020-04-13T11:34:00.000", { eventID: "JPTE200008", code: "120000", publisher: 'JPTE2', type: '府県気象情報' });
   //parsePDF(process.argv[2]);
 }
 
@@ -32,11 +35,11 @@ async function scrape(code, from, info) {
     if (a) {
       const link = a.getAttribute('href');
       const title = a.innerHTML;
-      console.log(link, title);
 
       const match = link.match(/javascript:pdfOpen\('\.\/(.*?)'\)/);
       if (match) {
         const pdfurl = 'http://www.jma.go.jp/jp/kishojoho/' + match[1];
+        console.log(pdfurl, title);
 
         const datetime_str = path.basename(pdfurl).substr(12, 12);
         const datetime = moment(datetime_str, 'YYYYMMDDHHmm');
@@ -59,14 +62,20 @@ async function parsePDF(url, info) {
 
   const datetime_str = basename.substr(12, 12);
   const datetime = moment(datetime_str, 'YYYYMMDDHHmm');
-  const publisher = basename.substr(7, 4);
+  const office = basename.substr(7, 4);
+  if (info && info.publisher.substr(0, 4) != office) return;
 
   try {
     const data = await pdf(content);
     const text = parsePDFText(data.text);
     text.datetime = datetime;
     console.log(text);
-    if (info) saveDatastore(text, basename, info);
+
+    if (info) {
+      if (await exists(info, text)) return;
+      await saveDatastore(text, basename, info);
+      slack.post(content, text.title, url, datetime);
+    }
 
   } catch (e) {
     console.warn(e);
@@ -95,6 +104,14 @@ async function uploadPublic(filename, data) {
     if (err) console.error(err);
     file.makePublic();
   });
+}
+
+async function exists(info, text) {
+  const id = info.eventID + ('000' + text.serial).slice(-3);
+  const query = datastore.createQuery('jma-xml-weather-information')
+    .filter('__key__', '==', id);
+  const [infos] = await datastore.runQuery(query);
+  return infos.length > 0;
 }
 
 async function saveDatastore(text, pdf, info) {
@@ -167,3 +184,6 @@ function hankaku(str) {
     return String.fromCharCode(s.charCodeAt(0) - 0xFEE0);
   });
 }
+
+
+exports.scrape = scrape;

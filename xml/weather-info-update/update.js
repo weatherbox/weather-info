@@ -41,7 +41,7 @@ async function makeAllJson(infos) {
   infos.forEach(d => {
     const id = d[datastore.KEY].name;
     const code = d.code;
-    const data = { id, datetime: d.datetime, title: d.title, headline: d.headline };
+    const data = { id, datetime: d.datetime, title: d.title, headline: d.headline, pdf: d.pdf };
 
     if (d.type == '全般気象情報') {
       append(alljson, 'general', data);
