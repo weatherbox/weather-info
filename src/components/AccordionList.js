@@ -4,6 +4,8 @@ import { Accordion, Icon, Divider } from 'semantic-ui-react';
 import { reportTime } from '../util';
 import Detail from './Detail';
 
+const bucket = 'https://storage.googleapis.com/weather-info/pdf/';
+
 
 export default class AccordionList extends Component {
   state = { activeIndex: 0 }
@@ -36,15 +38,32 @@ export default class AccordionList extends Component {
         onClick={this.handleClick}
       >
         <Icon name='dropdown' />
-        <span className="info-title">{title}</span>
+        <span className="info-title">{title} {info.pdf ? <Icon name="file pdf outline" size="tiny"/>: null}</span>
         <p className="info-time">{time_str}</p>
         <p>{info.headline}</p>
       </Accordion.Title>
       <Accordion.Content active={activeIndex === i} >
-        <Divider />
-        <Detail key={info.id} id={info.id} show={activeIndex === i} />
-        <Divider />
+        {this.renderDetail(info, activeIndex === i)}
       </Accordion.Content>
     </div>;
+  }
+
+  renderDetail(info, active) {
+    if (info.pdf) {
+      const url = bucket + info.pdf;
+      return <div>
+        <embed src={url} type="application/pdf" width="100%" height="400px" />
+        <a href={url} target="_blank" rel="noopener">図形式</a>
+      </div>;
+
+    } else {
+      return (
+        <>
+          <Divider />
+          <Detail key={info.id} id={info.id} show={active} />
+          <Divider />
+        </>
+      );
+    }
   }
 }
