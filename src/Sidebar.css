@@ -35,6 +35,17 @@ p.info-region-headline {
 	margin-left: 22px;
 }
 
+.info-pref h3.header {
+	margin-top: 8px;
+}
+
+.pref-breadcrumb.breadcrumb .divider {
+	color: #ccc;
+}
+.pref-breadcrumb.breadcrumb a {
+	color: #ccc;
+}
+
 .info-detail {
 	white-space: pre-wrap;
 	margin-bottom: 10px;

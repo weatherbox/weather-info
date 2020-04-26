@@ -91,7 +91,7 @@ export default class WeatherInfoSidebar extends Component {
   renderPref(code) {
     if (this.props.data && this.props.data.prefs[code]) {
       return (
-        <Pref info={this.props.data.prefs[code]} />
+        <Pref code={code} info={this.props.data.prefs[code]} />
       );
     }
   }
