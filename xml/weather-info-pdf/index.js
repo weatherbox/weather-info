@@ -9,11 +9,10 @@ exports.handler = async (event, context) => {
 }
 
 if (require.main === module) {
-  check();
+  check(process.argv[2], process.argv[3]);
 }
 
-async function check() {
-  const hours = 3;
+async function check(hours = 3, code) {
   const query = datastore.createQuery('jma-xml-weather-information')
     .filter('datetime', '>', new Date(Date.now() - hours * 60 * 60 * 1000))
     .order('datetime');
@@ -29,14 +28,15 @@ async function check() {
   console.log(updated);
 
   for (const p in updated) {
-    await checkOffice(p, updated[p]);
+    await checkOffice(p, updated[p], code);
   }
 }
 
 
-async function checkOffice(publisher, info) {
+async function checkOffice(publisher, info, pcode) {
   const code = officeCode[publisher.substr(0, 4)];
   if (!code) return;
+  if (pcode && code !== pcode) return;
   console.log(code);
   const from = info.datetime;
   await scrape.scrape(code, from, info);

@@ -11,14 +11,16 @@ const fetch = require('node-fetch');
 const pdf = require('pdf-parse');
 const HTMLParser = require('node-html-parser');
 const path = require('path');
-const moment = require('moment');
+
+const moment = require('moment-timezone');
+moment.tz.setDefault('Asia/Tokyo');
 
 const slack = require('./slack');
 
 
 if (require.main === module) {
-  scrape(process.argv[2]); // 330
-  //scrape("318", "2020-04-13T11:34:00.000", { eventID: "JPTE200008", code: "120000", publisher: 'JPTE2', type: '府県気象情報' });
+  //scrape(process.argv[2]); // 330
+  //scrape("356", "2020-06-08T00:00:00.000", { eventID: "JPWC200014", code: "474000", publisher: 'JPWC2', type: '府県気象情報' });
   //parsePDF(process.argv[2]);
 }
 
