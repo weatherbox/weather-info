@@ -54,7 +54,7 @@ export default class WeatherInfoLayer {
       "source": "region-vt",
       "source-layer": "region",
       "paint": {
-        "line-color": "rgba(70, 171, 199, 0.4)",
+        "line-color": "rgba(70, 171, 199, 0.8)",
         "line-width": 1
       },
       filter: ["==", "code", "0"]
@@ -98,8 +98,8 @@ export default class WeatherInfoLayer {
   }
 
   getColor(count) {
-    const opacity = Math.min(0.2 + 0.1 * count, 0.8);
-    return `rgba(0, 49, 73, ${opacity})`;
+    const opacity = Math.min(0.1 + 0.05 * count, 0.8);
+    return `rgba(70, 171, 199, ${opacity})`;
   }
 
   onClick(e) {
