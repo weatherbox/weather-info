@@ -6,13 +6,10 @@ import prefRegion from './pref-region.json';
 
 export default class Pref extends Component {
   render() {
-    const prefTitle = this.props.info[0].title.split('に関する')[1];
-
     return (
       <div className="info-pref">
         {this.renderBreadcrumb()}
-        <Header as='h3'>{prefTitle}</Header>
-        <AccordionList info={this.props.info} key={prefTitle} />
+        {this.props.info ? this.renderContent() : this.renderNone()}
       </div>
     );
   }
@@ -26,6 +23,26 @@ export default class Pref extends Component {
         <Breadcrumb.Divider />
         <Breadcrumb.Section link>{region.name}</Breadcrumb.Section>
       </Breadcrumb>
+    );
+  }
+
+  renderContent() {
+    const prefTitle = this.props.info[0].title.split('に関する')[1];
+    return (
+      <>
+        <Header as='h3'>{prefTitle}</Header>
+        <AccordionList info={this.props.info} key={prefTitle} />
+      </>
+    );
+  }
+  
+  renderNone() {
+    const prefTitle = this.props.prefName + '気象情報';
+    return (
+      <>
+        <Header as='h3'>{prefTitle}</Header>
+        <p>過去{this.props.period}時間に発表された情報はありません</p>
+      </>
     );
   }
 }

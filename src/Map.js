@@ -12,8 +12,8 @@ export default class Map extends Component {
     this.map = new mapboxgl.Map({
       container: this.mapContainer,
       style: 'mapbox://styles/tattii/cj1bob6hw003t2rr5s2svi3iq',
-      zoom: 5,
-      center: [136.6, 35.5],
+      zoom: 4.2,
+      center: [136.6 + 10, 35.5],
       hash: true,
       attributionControl: false
     });

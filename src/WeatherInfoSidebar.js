@@ -54,8 +54,8 @@ export default class WeatherInfoSidebar extends Component {
     this.props.onSelectRegion(code);
   }
 
-  showPref(code) {
-    this.setState({ show: { type: 'pref', code } });
+  showPref(code, prefName) {
+    this.setState({ show: { type: 'pref', code, prefName } });
   }
 
   renderShow() {
@@ -68,7 +68,7 @@ export default class WeatherInfoSidebar extends Component {
       return this.renderRegion(show.code);
 
     } else if (show.type === 'pref') {
-      return this.renderPref(show.code);
+      return this.renderPref(show.code, show.prefName);
     }
   }
   
@@ -88,10 +88,15 @@ export default class WeatherInfoSidebar extends Component {
     }
   }
 
-  renderPref(code) {
-    if (this.props.data && this.props.data.prefs[code]) {
+  renderPref(code, prefName) {
+    if (this.props.data) {
       return (
-        <Pref code={code} info={this.props.data.prefs[code]} />
+        <Pref
+          code={code}
+          info={this.props.data.prefs[code]}
+          prefName={prefName}
+          period={this.props.period}
+        />
       );
     }
   }

@@ -106,8 +106,9 @@ export default class WeatherInfoLayer {
     if (e.features) {
       console.log(e.features[0].properties);
       const code = this.getCode(e.features[0].properties.prefCode);
+      const prefName = e.features[0].properties.prefName;
       this.select(code);
-      this.onSelected(code);
+      this.onSelected(code, prefName);
     }
   }
 
