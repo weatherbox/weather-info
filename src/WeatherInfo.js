@@ -48,7 +48,6 @@ export default class WeatherInfo extends Component {
   }
 
   onSelected = (code, prefName) => {
-    console.log("###", this.weatherInfo.prefs[code]);
     this.sidebar.showPref(code, prefName);
   }
 }

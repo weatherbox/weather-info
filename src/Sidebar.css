@@ -50,3 +50,13 @@ p.info-region-headline {
 	white-space: pre-wrap;
 	margin-bottom: 10px;
 }
+
+.info-header button.info-header-link.ui.inverted.button {
+	font-size: 0.7em;
+	margin-left: 4px;
+	box-shadow: none!important;
+}
+.info-header button.info-header-link.ui.inverted.button:hover {
+	background: inherit;
+	color: inherit;
+}

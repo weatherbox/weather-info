@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import { Header } from 'semantic-ui-react';
 
+import Header from './Header';
 import AccordionList from './AccordionList';
 
 
@@ -10,7 +10,7 @@ export default class Region extends Component {
 
     return (
       <div className="info-pref">
-        <Header as='h3'>{regionTitle}</Header>
+        <Header code={this.props.code}>{regionTitle}</Header>
         <AccordionList info={this.props.info} key={regionTitle} />
       </div>
     );

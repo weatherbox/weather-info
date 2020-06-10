@@ -83,7 +83,7 @@ export default class WeatherInfoSidebar extends Component {
   renderRegion(code) {
     if (this.props.data && this.props.data.regions[code]) {
       return (
-        <Region info={this.props.data.regions[code]} />
+        <Region info={this.props.data.regions[code]} code={code} />
       );
     }
   }
