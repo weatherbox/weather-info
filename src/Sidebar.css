@@ -38,7 +38,13 @@ p.info-region-headline {
 .info-pref h3.header {
 	margin-top: 8px;
 }
+.info-pref > p {
+	margin-top: 8px;
+}
 
+.pref-breadcrumb.breadcrumb {
+	margin-bottom: 8px;
+}
 .pref-breadcrumb.breadcrumb .divider {
 	color: #999;
 }

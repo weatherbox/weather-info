@@ -8,7 +8,7 @@ export default class General extends Component {
   render() {
     return (
       <div className="info-pref">
-        <Header code="index">全般気象情報</Header>
+        <Header jmaCode="index">全般気象情報</Header>
         <AccordionList info={this.props.info} />
       </div>
     );

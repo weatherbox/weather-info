@@ -1,48 +1,45 @@
 import React, { Component } from 'react';
-import { Header, Breadcrumb } from 'semantic-ui-react';
+import { Breadcrumb } from 'semantic-ui-react';
 
+import Header from './Header';
 import AccordionList from './AccordionList';
 import prefRegion from './pref-region.json';
 
 export default class Pref extends Component {
   render() {
+    const prefTitle = this.props.prefName + '気象情報';
+    const jmaCode = prefRegion[this.props.code].jmaCode;
+
     return (
       <div className="info-pref">
         {this.renderBreadcrumb()}
-        {this.props.info ? this.renderContent() : this.renderNone()}
+        <Header jmaCode={jmaCode}>{prefTitle}</Header>
+        {this.props.info ? this.renderContent(prefTitle) : this.renderNone()}
       </div>
     );
   }
 
   renderBreadcrumb() {
-    const region = prefRegion[this.props.code];
+    const region = prefRegion[this.props.code].region;
     console.log(region);
     return (
       <Breadcrumb className="pref-breadcrumb">
-        <Breadcrumb.Section link>Top</Breadcrumb.Section>
+        <Breadcrumb.Section link>Home</Breadcrumb.Section>
         <Breadcrumb.Divider />
         <Breadcrumb.Section link>{region.name}</Breadcrumb.Section>
       </Breadcrumb>
     );
   }
 
-  renderContent() {
-    const prefTitle = this.props.info[0].title.split('に関する')[1];
+  renderContent(prefTitle) {
     return (
-      <>
-        <Header as='h3'>{prefTitle}</Header>
-        <AccordionList info={this.props.info} key={prefTitle} />
-      </>
+      <AccordionList info={this.props.info} key={prefTitle} />
     );
   }
   
   renderNone() {
-    const prefTitle = this.props.prefName + '気象情報';
     return (
-      <>
-        <Header as='h3'>{prefTitle}</Header>
-        <p>過去{this.props.period}時間に発表された情報はありません</p>
-      </>
+      <p>過去{this.props.period}時間に発表された情報はありません</p>
     );
   }
 }
