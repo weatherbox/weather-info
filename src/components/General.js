@@ -8,7 +8,14 @@ export default class General extends Component {
   render() {
     return (
       <div className="info-pref">
-        <Header jmaCode="index">全般気象情報</Header>
+        <Header
+          jmaCode="index"
+          bread={[
+            { title: 'Home', onClick: () => this.props.navigate('index') },
+          ]}
+        >
+          全般気象情報
+        </Header>
         <AccordionList info={this.props.info} />
       </div>
     );

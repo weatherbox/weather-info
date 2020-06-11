@@ -12,7 +12,13 @@ export default class Region extends Component {
 
     return (
       <div className="info-pref">
-        <Header jmaCode={jmaCode}>{regionTitle}</Header>
+        <Header jmaCode={jmaCode}
+          bread={[
+            { title: 'Home', onClick: () => this.props.navigate('index') },
+          ]}
+        >
+          {regionTitle}
+        </Header>
         {this.props.info ? this.renderContent(regionTitle) : this.renderNone()}
       </div>
     );

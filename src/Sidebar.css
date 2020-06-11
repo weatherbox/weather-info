@@ -45,14 +45,18 @@ p.info-region-headline {
 	margin-top: 8px;
 }
 
-.pref-breadcrumb.breadcrumb {
-	margin-bottom: 8px;
+.info-breadcrumb.breadcrumb {
+	margin-top: 6px;
+	float: right;
 }
-.pref-breadcrumb.breadcrumb .divider {
+.info-breadcrumb.breadcrumb .divider {
 	color: #999;
 }
-.pref-breadcrumb.breadcrumb a {
+.info-breadcrumb.breadcrumb a {
 	color: #999;
+}
+.info-breadcrumb.breadcrumb a:hover {
+	color: #444;
 }
 
 .info-detail {
@@ -66,10 +70,11 @@ p.info-region-headline {
 }
 .info-header button.info-header-link.ui.inverted.button {
 	font-size: 0.7em;
-	margin-left: 4px;
+	margin-top: 6px;
 	box-shadow: none!important;
 }
-.info-header button.info-header-link.ui.inverted.button:hover {
+.info-header button.info-header-link.ui.inverted.button:hover,
+.info-header button.info-header-link.ui.inverted.button:focus {
 	background: inherit;
 	color: inherit;
 }

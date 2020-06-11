@@ -9,29 +9,21 @@ export default class Pref extends Component {
   render() {
     const prefTitle = this.props.prefName + '気象情報';
     const jmaCode = prefRegion[this.props.code].jmaCode;
+    const region = prefRegion[this.props.code].region;
 
     return (
       <div className="info-pref">
-        {this.renderBreadcrumb()}
-        <Header jmaCode={jmaCode}>{prefTitle}</Header>
+        <Header
+          jmaCode={jmaCode}
+          bread={[
+            { title: 'Home', onClick: () => this.props.navigate('index') },
+            { title: region.name, onClick: () => this.props.navigate('region', region) },
+          ]}
+        >
+          {prefTitle}
+        </Header>
         {this.props.info ? this.renderContent(prefTitle) : this.renderNone()}
       </div>
-    );
-  }
-
-  renderBreadcrumb() {
-    const region = prefRegion[this.props.code].region;
-    console.log(region);
-    return (
-      <Breadcrumb className="pref-breadcrumb">
-        <Breadcrumb.Section link onClick={() => this.props.navigate('index')}>
-          Home
-        </Breadcrumb.Section>
-        <Breadcrumb.Divider />
-        <Breadcrumb.Section link onClick={() => this.props.navigate('region', region)}>
-          {region.name}
-        </Breadcrumb.Section>
-      </Breadcrumb>
     );
   }
 

@@ -84,7 +84,10 @@ export default class WeatherInfoSidebar extends Component {
   renderGeneral() {
     if (this.props.data && this.props.data.general) {
       return (
-        <General info={this.props.data.general} />
+        <General
+          info={this.props.data.general}
+          navigate={this.navigate}
+        />
       );
     }
   }

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Header, Button } from 'semantic-ui-react';
+import { Header, Button, Breadcrumb } from 'semantic-ui-react';
 
 
 export default class InfoHeader extends Component {
@@ -16,9 +16,32 @@ export default class InfoHeader extends Component {
         <Header as='h3'>
           {this.props.children}
           <Button className="info-header-link" icon='linkify' inverted size='mini' onClick={this.onClick} />
+        {this.renderBreadcrumb()}
         </Header>
+
       </div>
     );
+  }
+  
+  renderBreadcrumb() {
+    if (this.props.bread) {
+      return (
+        <Breadcrumb className="info-breadcrumb">
+          {this.props.bread.map((item, i) => {
+            return (
+              <>
+                {i > 0 ? <Breadcrumb.Divider /> : null}
+                <Breadcrumb.Section link onClick={item.onClick}>
+                  {item.title}
+                </Breadcrumb.Section>
+              </>
+            );
+          })}
+        </Breadcrumb>
+      );
+    } else {
+      return null;
+    }
   }
 }
 
