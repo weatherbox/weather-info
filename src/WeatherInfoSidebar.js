@@ -49,8 +49,17 @@ export default class WeatherInfoSidebar extends Component {
     );
   }
 
-  selectRegion = (code) => {
-    this.setState({ show: { type: 'region', code } });
+  navigate = (type, area) => {
+    if (type === 'index') {
+      this.setState({ show: null });
+
+    } else if (type === 'region') {
+      this.selectRegion(area.code, area.name);
+    } 
+  }
+
+  selectRegion = (code, name) => {
+    this.setState({ show: { type: 'region', code, name } });
     this.props.onSelectRegion(code);
   }
 
@@ -65,7 +74,7 @@ export default class WeatherInfoSidebar extends Component {
       return this.renderGeneral();
 
     } else if (show.type === 'region') {
-      return this.renderRegion(show.code);
+      return this.renderRegion(show.code, show.name);
 
     } else if (show.type === 'pref') {
       return this.renderPref(show.code, show.prefName);
@@ -80,10 +89,16 @@ export default class WeatherInfoSidebar extends Component {
     }
   }
   
-  renderRegion(code) {
-    if (this.props.data && this.props.data.regions[code]) {
+  renderRegion(code, name) {
+    if (this.props.data) {
       return (
-        <Region info={this.props.data.regions[code]} code={code} />
+        <Region
+          code={code}
+          info={this.props.data.regions[code]}
+          name={name}
+          period={this.props.period}
+          navigate={this.navigate}
+        />
       );
     }
   }
@@ -96,6 +111,7 @@ export default class WeatherInfoSidebar extends Component {
           info={this.props.data.prefs[code]}
           prefName={prefName}
           period={this.props.period}
+          navigate={this.navigate}
         />
       );
     }

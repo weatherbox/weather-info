@@ -26,14 +26,16 @@ export default class Pref extends Component {
       <Breadcrumb className="pref-breadcrumb">
         <Breadcrumb.Section link>Home</Breadcrumb.Section>
         <Breadcrumb.Divider />
-        <Breadcrumb.Section link>{region.name}</Breadcrumb.Section>
+        <Breadcrumb.Section link onClick={() => this.props.navigate('region', region)}>
+          {region.name}
+        </Breadcrumb.Section>
       </Breadcrumb>
     );
   }
 
-  renderContent(prefTitle) {
+  renderContent(key) {
     return (
-      <AccordionList info={this.props.info} key={prefTitle} />
+      <AccordionList info={this.props.info} key={key} />
     );
   }
   

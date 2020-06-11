@@ -34,6 +34,9 @@ p.info-region-headline {
 	font-size: 12px;
 	margin-left: 22px;
 }
+.accordion-item-title {
+	margin-left: 16px;
+}
 
 .info-pref h3.header {
 	margin-top: 8px;
@@ -57,6 +60,10 @@ p.info-region-headline {
 	margin-bottom: 10px;
 }
 
+
+.info-header {
+	margin-bottom: 10px;
+}
 .info-header button.info-header-link.ui.inverted.button {
 	font-size: 0.7em;
 	margin-left: 4px;

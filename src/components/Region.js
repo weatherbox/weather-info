@@ -6,14 +6,27 @@ import AccordionList from './AccordionList';
 
 export default class Region extends Component {
   render() {
-    const regionTitle = this.props.info[0].title.split('に関する')[1];
+    const regionTitle = this.props.name ? this.props.name + '気象情報' :
+      this.props.info[0].title.split('に関する')[1];
     const jmaCode = jmaCodeTable[this.props.code];
 
     return (
       <div className="info-pref">
         <Header jmaCode={jmaCode}>{regionTitle}</Header>
-        <AccordionList info={this.props.info} key={regionTitle} />
+        {this.props.info ? this.renderContent(regionTitle) : this.renderNone()}
       </div>
+    );
+  }
+  
+  renderContent(key) {
+    return (
+      <AccordionList info={this.props.info} key={key} />
+    );
+  }
+  
+  renderNone() {
+    return (
+      <p>過去{this.props.period}時間に発表された情報はありません</p>
     );
   }
 }

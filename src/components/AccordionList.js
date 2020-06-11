@@ -40,7 +40,7 @@ export default class AccordionList extends Component {
         <Icon name='dropdown' />
         <span className="info-title">{title} {info.pdf ? <Icon name="file pdf outline" size="tiny"/>: null}</span>
         <p className="info-time">{time_str}</p>
-        <p>{info.headline}</p>
+        <p className="accordion-item-title">{info.headline}</p>
       </Accordion.Title>
       <Accordion.Content active={activeIndex === i} >
         {this.renderDetail(info, activeIndex === i)}
