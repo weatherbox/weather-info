@@ -24,7 +24,9 @@ export default class Pref extends Component {
     console.log(region);
     return (
       <Breadcrumb className="pref-breadcrumb">
-        <Breadcrumb.Section link>Home</Breadcrumb.Section>
+        <Breadcrumb.Section link onClick={() => this.props.navigate('index')}>
+          Home
+        </Breadcrumb.Section>
         <Breadcrumb.Divider />
         <Breadcrumb.Section link onClick={() => this.props.navigate('region', region)}>
           {region.name}
