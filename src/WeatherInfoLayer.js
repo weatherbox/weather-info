@@ -1,9 +1,12 @@
+import SelectedLayer from './SelectedLayer';
+import { hokkaidoPrefCodes, izuOgasawara } from './code';
+
+
 export default class WeatherInfoLayer {
   constructor(map, data, period, onSelected) {
     this.map = map;
     this.weatherInfo = data;
     this.period = period;
-    this.onSelected = onSelected;
 
     this.map.addSource("pref-vt", {
       "type": "vector",
@@ -21,23 +24,15 @@ export default class WeatherInfoLayer {
         "line-color": "rgba(55, 55, 55, 0.4)"
       }
     });
+    this.addTokyo();
     this.renderWeatherInfoPrefs();
-    this.map.addLayer({
-      "id": "pref-line-selected",
-      "type": "line",
-      "source": "pref-vt",
-      "source-layer": "prefallgeojson",
-      "paint": {
-        "line-color": "rgba(70, 171, 199, 0.4)",
-        "line-width": 2
-      },
-      filter: ["==", "prefCode", "0"]
-    });
+ 
     this.addRegion();
+    this.selectedLayer =  new SelectedLayer(map, onSelected);
+  }
 
-    this.map.on('click', 'weather-info-pref', (e) => {
-      this.onClick(e);
-    });
+  selectRegion(code) {
+    this.selectedLayer.selectRegion(code);
   }
 
   addRegion() {
@@ -47,23 +42,22 @@ export default class WeatherInfoLayer {
       "maxzoom": 8,
       "tiles": ["https://weatherbox.github.io/warning-area-vt/region/{z}/{x}/{y}.pbf"]
     });
+  }
 
-    this.map.addLayer({
-      "id": "region-line-selected",
-      "type": "line",
-      "source": "region-vt",
-      "source-layer": "region",
-      "paint": {
-        "line-color": "rgba(70, 171, 199, 0.8)",
-        "line-width": 1
-      },
-      filter: ["==", "code", "0"]
+  addTokyo() {
+    this.map.addSource("distlict-vt", {
+      "type": "vector",
+      "minzoom": 0,
+      "maxzoom": 10,
+      "tiles": ["https://weatherbox.github.io/warning-area-vt/distlict/{z}/{x}/{y}.pbf"]
     });
+
   }
 
   renderWeatherInfoPrefs() {
     const now = Date.now();
     var stops = [];
+    let tokyo;
 
     for (let code in this.weatherInfo.prefs){
       const pref = this.weatherInfo.prefs[code];
@@ -75,7 +69,10 @@ export default class WeatherInfoLayer {
             stops.push([c, this.getColor(pref.length)]);
           }
 
-        }else{
+        } else if (code === '130100') {
+          tokyo = this.getColor(pref.length);
+
+        } else {
           stops.push([code, this.getColor(pref.length)]);
         }
       }
@@ -95,73 +92,24 @@ export default class WeatherInfoLayer {
         },
       }
     });
+    this.renderTokyo(tokyo);
+  }
+
+  renderTokyo(color = 'rgba(0, 0, 0, 0)') {
+    this.map.addLayer({
+      "id": "weather-info-tokyo",
+      "type": "fill",
+      "source": "distlict-vt",
+      "source-layer": "distlictallgeojson",
+      "paint": {
+        "fill-color": color,
+      },
+      "filter": ["in", "distlictCode"].concat(izuOgasawara)
+    });
   }
 
   getColor(count) {
     const opacity = Math.min(0.1 + 0.05 * count, 0.8);
     return `rgba(70, 171, 199, ${opacity})`;
-  }
-
-  onClick(e) {
-    if (e.features) {
-      console.log(e.features[0].properties);
-      const code = this.getCode(e.features[0].properties.prefCode);
-      const prefName = e.features[0].properties.prefName;
-      this.select(code);
-      this.onSelected(code, prefName);
-    }
-  }
-
-  getCode(prefCode) {
-    if (prefCode.substr(0, 2) === '01') {
-      for (let code in hokkaidoPrefCodes) {
-        if (hokkaidoPrefCodes[code].includes(prefCode)) return code;
-      }
-
-    } else {
-      return prefCode;
-    }
-  }
-
-  select(code) {
-    let filter = [code];
-    if (code in hokkaidoPrefCodes){
-      filter = hokkaidoPrefCodes[code];
-    }
-    this.map.setFilter('pref-line-selected', ['in', 'prefCode', ...filter]);
-    this.map.setFilter('region-line-selected', ['==', 'code', '0']);
-  }
-
-  selectRegion(code) {
-    this.map.setFilter('pref-line-selected', ['==', 'prefCode', '0']);
-    this.map.setFilter('region-line-selected', ['==', 'code', code]);
-  }
+  }   
 }
-
-
-const hokkaidoPrefCodes = {
-  "011000": ["011000"], // 宗谷地方
-  "012000": [
-    "012010", // 上川地方
-    "012020"  // 留萌地方
-  ],
-  "013000": ["013000"], // 網走・北見・紋別地方
-  "014100": [
-    "014020", // 釧路地方
-    "014010"  // 根室地方
-  ],
-  "014030": ["014030"], // 十勝地方
-  "015000": [
-    "015010", // 胆振地方
-    "015020"  // 日高地方
-  ],
-  "016000": [
-    "016010", // 石狩地方
-    "016020", // 空知地方
-    "016030"  // 後志地方
-  ],
-  "017000": [
-    "017010", // 渡島地方
-    "017020"  // 檜山地方
-  ]
-};
