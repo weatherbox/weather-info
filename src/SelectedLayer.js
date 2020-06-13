@@ -21,25 +21,24 @@ export default class SelectedLayer {
   }
   
   _addSelectedLayer(type) {
-    const key = type === 'region' ? 'code' : type + 'Code';
     this.map.addLayer({
       "id": type + "-line-selected",
       "type": "line",
-      "source": type + "-vt",
-      "source-layer": type === 'region' ? type : type + 'allgeojson',
+      "source": type === "region" ? "region-vt" : "vt",
+      "source-layer": type,
       "paint": {
         "line-color": "rgba(70, 171, 199, 0.8)",
         "line-width": 1
       },
-      filter: ["==", key, "0"]
+      filter: ["==", "code", "0"]
     });
   }
 
   onClick(e) {
     if (e.features) {
       console.log(e.features[0].properties);
-      const code = this.getCode(e.features[0].properties.prefCode);
-      const prefName = e.features[0].properties.prefName;
+      const code = this.getCode(e.features[0].properties.code);
+      const prefName = e.features[0].properties.name;
       this.selectPref(code);
       this.onSelected(code, prefName);
     }
@@ -79,9 +78,8 @@ export default class SelectedLayer {
   
   select(type, codes) {
     ['pref', 'distlict', 'region'].forEach(l => {
-      const key = l === 'region' ? 'code' : type + 'Code';
       const filter = l === type ? codes : ['0'];
-      this.map.setFilter(l + '-line-selected', ['in', key, ...filter]);
+      this.map.setFilter(l + '-line-selected', ['in', 'code', ...filter]);
     });
   }
 }

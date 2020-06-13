@@ -8,23 +8,22 @@ export default class WeatherInfoLayer {
     this.weatherInfo = data;
     this.period = period;
 
-    this.map.addSource("pref-vt", {
+    this.map.addSource("vt", {
       "type": "vector",
       "minzoom": 0,
       "maxzoom": 10,
-      "tiles": ["https://weatherbox.github.io/warning-area-vt/pref/{z}/{x}/{y}.pbf"]
+      "tiles": ["https://weatherbox.github.io/warning-area-vt/v2/{z}/{x}/{y}.pbf"]
     });
 
     this.map.addLayer({
       "id": "pref-line",
       "type": "line",
-      "source": "pref-vt",
-      "source-layer": "prefallgeojson",
+      "source": "vt",
+      "source-layer": "pref",
       "paint": {
         "line-color": "rgba(55, 55, 55, 0.4)"
       }
     });
-    this.addTokyo();
     this.renderWeatherInfoPrefs();
  
     this.addRegion();
@@ -44,15 +43,6 @@ export default class WeatherInfoLayer {
     });
   }
 
-  addTokyo() {
-    this.map.addSource("distlict-vt", {
-      "type": "vector",
-      "minzoom": 0,
-      "maxzoom": 10,
-      "tiles": ["https://weatherbox.github.io/warning-area-vt/distlict/{z}/{x}/{y}.pbf"]
-    });
-
-  }
 
   renderWeatherInfoPrefs() {
     const now = Date.now();
@@ -81,11 +71,11 @@ export default class WeatherInfoLayer {
     this.map.addLayer({
       "id": "weather-info-pref",
       "type": "fill",
-      "source": "pref-vt",
-      "source-layer": "prefallgeojson",
+      "source": "vt",
+      "source-layer": "pref",
       "paint": {
         "fill-color": {
-          "property": "prefCode",
+          "property": "code",
           "type": "categorical",
           "stops": stops,
           "default": "rgba(0, 0, 0, 0)"
@@ -99,12 +89,12 @@ export default class WeatherInfoLayer {
     this.map.addLayer({
       "id": "weather-info-tokyo",
       "type": "fill",
-      "source": "distlict-vt",
-      "source-layer": "distlictallgeojson",
+      "source": "vt",
+      "source-layer": "distlict",
       "paint": {
         "fill-color": color,
       },
-      "filter": ["in", "distlictCode"].concat(izuOgasawara)
+      "filter": ["in", "code"].concat(izuOgasawara)
     });
   }
 
