@@ -29,12 +29,12 @@ export default class InfoHeader extends Component {
         <Breadcrumb className="info-breadcrumb">
           {this.props.bread.map((item, i) => {
             return (
-              <>
+              <React.Fragment key={i}>
                 {i > 0 ? <Breadcrumb.Divider /> : null}
                 <Breadcrumb.Section link onClick={item.onClick}>
                   {item.title}
                 </Breadcrumb.Section>
-              </>
+              </React.Fragment>
             );
           })}
         </Breadcrumb>

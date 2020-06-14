@@ -15,6 +15,8 @@ export default class RegionList extends Component {
       if ((now - time) <= this.props.period * 3600 * 1000){
         region.code = code;
         return region;
+      } else {
+        return null;
       }
     }).filter(d => d);
 

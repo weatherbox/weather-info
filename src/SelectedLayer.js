@@ -1,4 +1,4 @@
-import { hokkaidoPrefCodes, izuOgasawara } from './code';
+import { hokkaidoPrefCodes, hokkaidoPrefNames, izuOgasawara } from './code';
 
 export default class SelectedLayer {
   constructor(map, onSelected) {
@@ -37,8 +37,8 @@ export default class SelectedLayer {
   onClick(e) {
     if (e.features) {
       console.log(e.features[0].properties);
-      const code = this.getCode(e.features[0].properties.code);
-      const prefName = e.features[0].properties.name;
+      const { code, name } = this.getCode(e.features[0].properties.code);
+      const prefName = name || e.features[0].properties.name;
       this.selectPref(code);
       this.onSelected(code, prefName);
     }
@@ -56,11 +56,14 @@ export default class SelectedLayer {
   getCode(prefCode) {
     if (prefCode.substr(0, 2) === '01') {
       for (let code in hokkaidoPrefCodes) {
-        if (hokkaidoPrefCodes[code].includes(prefCode)) return code;
+        if (hokkaidoPrefCodes[code].includes(prefCode)) {
+          const name = hokkaidoPrefNames[code];
+          return { code, name };
+        }
       }
 
     } else {
-      return prefCode;
+      return { code: prefCode };
     }
   }
 

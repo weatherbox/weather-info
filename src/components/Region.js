@@ -8,6 +8,7 @@ export default class Region extends Component {
   render() {
     const regionTitle = this.props.name ? this.props.name + '気象情報' :
       this.props.info[0].title.split('に関する')[1];
+    console.log(this.props.code);
     const jmaCode = jmaCodeTable[this.props.code];
 
     return (

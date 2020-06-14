@@ -53,7 +53,7 @@ export default class AccordionList extends Component {
       const url = bucket + info.pdf;
       return <div>
         <embed src={url} type="application/pdf" width="100%" height="400px" />
-        <a href={url} target="_blank" rel="noopener">図形式</a>
+        <a href={url} target="_blank" rel="noopener noreferrer">図形式</a>
       </div>;
 
     } else {

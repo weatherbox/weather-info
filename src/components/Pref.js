@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { Breadcrumb } from 'semantic-ui-react';
 
 import Header from './Header';
 import AccordionList from './AccordionList';
