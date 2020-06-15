@@ -55,7 +55,7 @@ async function process(url) {
   data.publisher = data.eventID.substr(0, 4) + typeCode[data.type];
 
   console.log(data);
-  await uploadPublic("d/" + data.id + ".json", data);
+  await uploadPublic("d/" + data.id + ".json", data).catch(console.error);
   await saveDatastore(data.id, data);
 }
 
@@ -85,16 +85,14 @@ function parseXML(data) {
 async function uploadPublic(filename, data) {
   const storage = new Storage();
   const file = await storage.bucket(bucketName).file(filename);
-  file.save(JSON.stringify(data), {
+  await file.save(JSON.stringify(data), {
     contentType: 'application/json',
     gzip: true,
     matadata: {
-      cacheControl: 'no-cache'
+      cacheControl: 'public, max-age=3600',
     }
-  }, function (err) { 
-    if (err) return console.error(err);
-    file.makePublic();
   });
+  await file.makePublic();
 }
 
 async function saveDatastore(id, data) {
@@ -136,7 +134,7 @@ async function saveDatastore(id, data) {
 
   try {
     await datastore.save(entity);
-    publishUpdate({ id });
+    await publishUpdate({ id });
 
   } catch (err) {
     console.error('ERROR:', err);
@@ -144,18 +142,13 @@ async function saveDatastore(id, data) {
 }
 
 
-function publishUpdate(data) {
+async function publishUpdate(data) {
   const topicName = 'jma-xml-weather-info-update';
   const pubsub = new PubSub({projectId});
   const publisher = pubsub.topic(topicName).publisher();
 
-  publisher.publish(Buffer.from(JSON.stringify(data)), (err) => {
-    if (err) {
-      console.error('ERROR:', err);
-    } else {
-      console.log("published: " + topicName);
-    }
-  });
+  await publisher.publish(Buffer.from(JSON.stringify(data)));
+  console.log("published: " + topicName);
 }
 
 
