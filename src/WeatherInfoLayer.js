@@ -1,3 +1,4 @@
+import mapboxgl from 'mapbox-gl';
 import SelectedLayer from './SelectedLayer';
 import { hokkaidoPrefCodes, izuOgasawara } from './code';
 
@@ -28,6 +29,11 @@ export default class WeatherInfoLayer {
  
     this.addRegion();
     this.selectedLayer =  new SelectedLayer(map, onSelected);
+
+    this.popup = new mapboxgl.Popup({
+      closeButton: false
+	  });
+    this.map.on('mousemove', this.hover);
   }
 
   selectRegion(code) {
@@ -101,5 +107,49 @@ export default class WeatherInfoLayer {
   getColor(count) {
     const opacity = Math.min(0.1 + 0.05 * count, 0.8);
     return `rgba(70, 171, 199, ${opacity})`;
-  }   
+  }
+
+  hover = (e) => {
+    const features = this.map.queryRenderedFeatures(e.point, { layers: ['weather-info-pref', 'weather-info-tokyo'] });
+    this.map.getCanvas().style.cursor = (features.length) ? 'crosshair' : '';
+
+    let html;
+    if (features.length) {
+      const code = this.getCode(features[0].properties.code);
+      const infos = this.weatherInfo.prefs[code];
+      if (infos) {
+        const title = infos[0].title.split('に関する')[0];
+        html = title + '<br/><span>' + this.getTimeBefore(infos[0]) + '</span>';
+      }
+    }
+    
+    if (html) {
+      this.popup.setLngLat(e.lngLat)
+        .setHTML(html)
+        .addTo(this.map);
+    } else {
+			this.popup.remove();
+		}
+  }
+  
+  getCode(prefCode) {
+    if (prefCode.substr(0, 2) === '01') {
+      for (let code in hokkaidoPrefCodes) {
+        if (hokkaidoPrefCodes[code].includes(prefCode)) return code;
+      }
+    } else {
+      return prefCode;
+    }
+  }
+
+  getTimeBefore(info) {
+    const diff = Date.now() - new Date(info.datetime);
+    if (diff < 60 * 60 * 1000) {
+      const minutes = Math.round(diff / 60 / 1000);
+      return minutes + '分前';
+    } else {
+      const hours = Math.round(diff / 60 / 60 / 1000);
+      return hours + '時間前';
+    }
+  }
 }
