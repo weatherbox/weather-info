@@ -32,7 +32,7 @@ export default class WeatherInfoLayer {
 
     this.popup = new mapboxgl.Popup({
       closeButton: false
-	  });
+    });
     this.map.on('mousemove', this.hover);
   }
 
@@ -128,8 +128,8 @@ export default class WeatherInfoLayer {
         .setHTML(html)
         .addTo(this.map);
     } else {
-			this.popup.remove();
-		}
+      this.popup.remove();
+    }
   }
   
   getCode(prefCode) {
